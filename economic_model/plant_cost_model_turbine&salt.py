@@ -9,8 +9,12 @@ import matplotlib.pyplot as plt
 # Move graphing commands to inside of function?
 # More costs?
 # Find better cost data?
-
-def plant_costs(reactor_power, thermal_storage_size, turbine_size, generator_size, max_ramp_up_rate):
+def plant_costs(
+        reactor_power = 500e6, 
+        thermal_storage_size = 1000e6, 
+        turbine_size = 500e6, 
+        generator_size = 500e6, 
+        max_ramp_up_rate = 30e6):
     
     # Sample grid information.
     out_text ="*** GRID INFORMATION TABLE ***\n"
@@ -409,4 +413,3 @@ def plant_costs(reactor_power, thermal_storage_size, turbine_size, generator_siz
     plt.legend()
     plt.tight_layout()
     return 
-  
