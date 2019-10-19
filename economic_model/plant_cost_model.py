@@ -1,14 +1,15 @@
+import sys
 import numpy as np
-import scipy
 import matplotlib.pyplot as plt
 
-# TODO
-# Add thermal storage costs.
+# TODO: GENERAL TODOS
 # Add solar contributions.
+# Heat capacity data.
 # Add more options for equipment?
 # Move graphing commands to inside of function?
 # More costs?
 # Find better cost data?
+
 def plant_costs(
         reactor_power = 500e6, 
         thermal_storage_size = 1000e6, 
@@ -29,11 +30,18 @@ def plant_costs(
     # Checks if input is a valid index.
     def index_check(matrix, comment):
         variable = input(comment)
+        attempt = 0
         while True:
             if variable.isdigit() and int(variable) <= len(matrix) - 2:
                variable = int(variable)
                break
             else:
+               attempt = attempt + 1
+               if attempt > 3:
+                   print('')
+                   print('ERROR: TOO MANY INPUT ATTEMPTS. EXITING PROGRAM.')
+                   sys.exit()
+                   break
                print('ERROR: INVALID INDEX')
                variable = input(comment)
                continue
@@ -42,14 +50,27 @@ def plant_costs(
     # Checks if input is a valid float.
     def float_check(comment):
         variable = input(comment)
+        attempt = 0
         while True:
             try:
                variable = float(variable)
             except ValueError:
+               attempt = attempt + 1
+               if attempt > 3:
+                   print('')
+                   print('ERROR: TOO MANY INPUT ATTEMPTS. EXITING PROGRAM.')
+                   sys.exit()
+                   break
                print('ERROR: INVALID INPUT')
                variable = input(comment)
                continue
             if float(variable) < 0:
+               attempt = attempt + 1
+               if attempt > 3:
+                   print('')
+                   print('ERROR: TOO MANY INPUT ATTEMPTS. EXITING PROGRAM.')
+                   sys.exit()
+                   break
                print('ERROR: INVALID INPUT')
                variable = input(comment)
                continue
@@ -61,19 +82,27 @@ def plant_costs(
     # Checks if a "YES/NO" input is valid
     def yes_no(comment):
         variable = input(comment)
+        attempt = 0
         while True:
             if variable.upper() == 'YES' or variable.upper() == 'NO':
                 break
             else:
+                attempt = attempt + 1
+                if attempt > 3:
+                    print('')
+                    print('ERROR: TOO MANY INPUT ATTEMPTS. EXITING PROGRAM.')
+                    sys.exit()
+                    break
                 print('ERROR: INVALID ANSWER')
                 variable = input(comment)
-                continue
         return variable
     
     # Testing bypass
     bypass = yes_no('Would you like to bypass user inputs in order to test code (YES/NO)?: ')
+    print('')
     
     # Chooses which type of fuel salt to use.
+    # TODO: add more salts, find better pricing data, find heat capacity info
     print ('FUEL SALT TYPE TABLE')
     print ('')
     salt_matrix = [['  Salt Type', ' Index', ' Composition', '  Price [$/m^3]'],
@@ -97,17 +126,19 @@ def plant_costs(
     else:
         salt_opt = 1
     salt_price = salt_matrix[1+salt_opt][1]
-    print('Salt unit price is : ', salt_price)
     
     # Determines the volume of fuel salt needed.
+    # TODO: find a way to determine volume based on plant size
     if bypass.upper() == 'NO':
         vol_salt = float_check('Enter fuel salt volume [m^3]: ')
     else:
         vol_salt = 40
     tot_salt = salt_price * vol_salt
+    print('Fuel salt price is: $', tot_salt)
     print ('')
     
     # Chooses what type of coolant salt to use.
+    # TODO: add more salts, find better pricing data, find heat capacity info
     print ('SALT COOLANT TABLE')
     print ('')
     coolant_matrix = [[['  Coolant Type' ' Index' ' Composition', '  Price [$/m^3]'],                                                 ],
@@ -131,17 +162,39 @@ def plant_costs(
     else:
         coolant_opt = 1
     coolant_price = coolant_matrix[1+coolant_opt][1]
-    print('Coolant unit price is : ', coolant_price)
+    
+    # Determines the price of the thermal storage salt based on a given index.
+    if bypass.upper() == 'NO':
+        storage_opt = index_check(coolant_matrix, 'Enter thermal storage salt index: ') 
+    else:
+        storage_opt = 5
+    storage_price = coolant_matrix[1+storage_opt][1]
     
     # Determines the volume of coolant salt needed.
+    # TODO: find a way to determine volume based on plant size
     if bypass.upper() == 'NO':
         vol_coolant = float_check('Enter coolant salt volume [m^3]: ')
     else:
         vol_coolant = 40
     tot_coolant = coolant_price * vol_coolant
+    print('Coolant salt price is: $', tot_coolant)
+    print ('')
+    
+    # Determines the volume of thermal storage salt needed.
+    # TODO: find a way to determine volume based on plant size
+    if bypass.upper() == 'NO':
+        vol_storage = float_check('Enter thermal storage salt volume [m^3]: ')
+    else:
+        heat_mcapacity = 130 # Heat capacity of index 5 salt [J/mol]
+        mol_mass = 101.1*0.45 + 84.99*0.07 + 69.00*0.48 # [g/mol]
+        heat_capacity = heat_mcapacity / mol_mass
+        vol_storage = 1.1*(((thermal_storage_size*3600)/(heat_capacity*(570-344)))/1e6)
+    tot_storage = storage_price * vol_storage
+    print('Thermal storage salt price is: $', tot_storage)
     print ('')
     
     # Chooses what turbine model to use.
+    # TODO: more turbine options, better pricing data
     print ('TURBINE TABLE')
     print ('')
     turbine_matrix = [['Index' '  Company'      '      Model',    '     Price [$/m^3]'],
@@ -156,6 +209,7 @@ def plant_costs(
     print ('')
     
     # Determines the turbine price based on a given index.
+    # TODO: determine number of turbines based on plant size
     if bypass.upper() == 'NO':
         turbine_opt = index_check(turbine_matrix, 'Enter turbine index: ')    
     else:
@@ -164,6 +218,7 @@ def plant_costs(
     print('Turbine price is: $', turbine_price)
     
     # Chooses what generator model to use.
+    # TODO: add more generator options, better pricing data
     print ('GENERATOR TABLE')
     print ('')
     generator_matrix = [['Index' '  Company'      '      Model'      '              Cooling      ',    '     Price [$/m^3]'],
@@ -175,6 +230,7 @@ def plant_costs(
     print ('')
     
     # Determines the generator price based on a given index.
+    # TODO: determine number of turbines based on plant size
     if bypass.upper() == 'NO':
         generator_opt = index_check(generator_matrix, 'Enter generator index: ')    
     else:
@@ -183,6 +239,7 @@ def plant_costs(
     print('Generator price is: $', generator_price)
     
     # Determines the construction material prices based on demand
+    # TODO: add more material data, better pricing data, refine table to possible buildings
     print ('CONSTRUCTION MATERIALS FOR 500 MWe REACTOR TABLE')
     print ('')
     material_matrix = [['  Material',         ' Estimated Material Amount [tons]',  '  Price [$/ton]'],
@@ -213,6 +270,7 @@ def plant_costs(
         steel_demand = float_check('Amount of steel needed [tons]: ')
         tot_steel = (steel_demand * material_matrix[4][2]) * construction_labor
     initial_construction_costs = tot_can + tot_core + tot_conc + tot_steel
+    print('Initial construction costs: $', initial_construction_costs)
     
     # Determine licensing cost
     if bypass.upper() == 'NO':
@@ -232,18 +290,22 @@ def plant_costs(
                labor_force = input('Number of people working at plant: ')
                continue
     else:
-        labor_force = 100
+        labor_force = 209 # Estimate from ThorCon website
     if bypass.upper() == 'NO':
         avg_salary = float_check('Average annual salary of workforce: $')
     else:
         avg_salary = 100e3
     labor_mcost = labor_force * (avg_salary / 12)
+    print('Monthly labor costs: $', labor_mcost)
     
     # Monthly operating cost of plant.
+    # TODO: add more monthly costs such as for fuel
     month_cost = labor_mcost
     
     # Determines the startup cost of the facility based on choices.
-    tot = turbine_price + generator_price + tot_salt + tot_coolant + initial_construction_costs + license
+    # TODO: make sure all costs modeled are covered
+    salt_tot = tot_salt + tot_coolant + tot_storage
+    tot = turbine_price + generator_price + salt_tot + initial_construction_costs + license
     initial_cost = tot
     print('Facility flat cost without loan: $', initial_cost)
     
@@ -300,9 +362,10 @@ def plant_costs(
         print('Facility real cost: $', tot_cost)
         print('Interest on loan: $', loan_interest)
         month_tot = month_cost + loan_mcost
-        print('Monthly cost is: ', month_tot, ' dollars')
+        print('Monthly cost is: $', month_tot, ' dollars')
         
         # Calculate plant revenue throughout lifetime.
+        # TODO: refine periodic costs (core replacement, salt replacement, etc.)
         time = 0
         fuel_check = 0
         core_check = 0
@@ -358,6 +421,7 @@ def plant_costs(
         print('Total revenue: $', life_profit[-1])
 
     # If loan is not taken.
+    # TODO: refine periodic costs (core replacement, salt replacement, etc.)
     else:
         time = 0
         fuel_check = 0
@@ -405,6 +469,7 @@ def plant_costs(
         print('Total revenue: $', life_profit[-1])
     
     # Graphing
+    # TODO: add monthly revenue plot, make plots look better, find break even point
     month = np.linspace(0, int(work_length)*12,len(life_profit))
     plt.semilogy(month,life_profit,ls='-', marker='.', c='r', markersize=6, label='Profit')
     plt.xlabel('Time (months)', fontsize=14)                
