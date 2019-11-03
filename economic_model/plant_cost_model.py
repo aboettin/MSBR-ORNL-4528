@@ -1,6 +1,8 @@
-import sys
 import numpy as np
 import matplotlib.pyplot as plt
+
+# IMPORTANT NOTE
+# File "Economic_Data.py" must be downloaded to same directory as this file.
 
 # TODO: GENERAL TODOS
 # Add solar contributions.
@@ -27,251 +29,45 @@ def plant_costs(
     print(out_text)
     print('')
     
-    # Checks if input is a valid index.
-    def index_check(matrix, comment):
-        variable = input(comment)
-        attempt = 0
-        while True:
-            if variable.isdigit() and int(variable) <= len(matrix) - 2:
-               variable = int(variable)
-               break
-            else:
-               attempt = attempt + 1
-               if attempt > 3:
-                   print('')
-                   print('ERROR: TOO MANY INPUT ATTEMPTS. EXITING PROGRAM.')
-                   sys.exit()
-                   break
-               print('ERROR: INVALID INDEX')
-               variable = input(comment)
-               continue
-        return variable
-    
-    # Checks if input is a valid float.
-    def float_check(comment):
-        variable = input(comment)
-        attempt = 0
-        while True:
-            try:
-               variable = float(variable)
-            except ValueError:
-               attempt = attempt + 1
-               if attempt > 3:
-                   print('')
-                   print('ERROR: TOO MANY INPUT ATTEMPTS. EXITING PROGRAM.')
-                   sys.exit()
-                   break
-               print('ERROR: INVALID INPUT')
-               variable = input(comment)
-               continue
-            if float(variable) < 0:
-               attempt = attempt + 1
-               if attempt > 3:
-                   print('')
-                   print('ERROR: TOO MANY INPUT ATTEMPTS. EXITING PROGRAM.')
-                   sys.exit()
-                   break
-               print('ERROR: INVALID INPUT')
-               variable = input(comment)
-               continue
-            else:
-               variable = float(variable)
-               break
-        return variable
-    
-    # Checks if a "YES/NO" input is valid
-    def yes_no(comment):
-        variable = input(comment)
-        attempt = 0
-        while True:
-            if variable.upper() == 'YES' or variable.upper() == 'NO':
-                break
-            else:
-                attempt = attempt + 1
-                if attempt > 3:
-                    print('')
-                    print('ERROR: TOO MANY INPUT ATTEMPTS. EXITING PROGRAM.')
-                    sys.exit()
-                    break
-                print('ERROR: INVALID ANSWER')
-                variable = input(comment)
-        return variable
+    # Import functions.
+    from Economic_Data import float_check
+    from Economic_Data import yes_no
+    from Economic_Data import overnight_cost
+    from Economic_Data import can_cost
+    from Economic_Data import fuel_cost
+    from Economic_Data import nuc_salt_cost
+    from Economic_Data import storage_salt_cost
+    from Economic_Data import turbine_cost
+    from Economic_Data import generator_cost
+    from Economic_Data import replace
     
     # Testing bypass
     bypass = yes_no('Would you like to bypass user inputs in order to test code (YES/NO)?: ')
     print('')
     
     # Chooses which type of fuel salt to use.
-    # TODO: add more salts, find better pricing data, find heat capacity info
-    print ('FUEL SALT TYPE TABLE')
-    print ('')
-    salt_matrix = [['  Salt Type', ' Index', ' Composition', '  Price [$/m^3]'],
-                   ['________________________________________________________'],
-                   ['LiF-BeF2-UF4' '      1' '      .63-.366-.004    ',       3774.6],
-                   ['LiF-BeF2-UF4' '      2' '      .636-.362-.0022  ',    1936.95],
-                   ['LiF-BeF2-UF4' '      3' '      .636-.366-.004   ',     869.4],
-                   ['LiF-BeF2-UF4' '      4''      .67-.18-.15      ',        522.4],
-                   ['LiF-BeF2-ThF4' '     5''      .71-.02-.027     ',       2324],
-                   ['LiF-BeF2-ThF4' '     6''      .63-.366-.004    ',    11776.44],
-                   ['LiF-BeF2-ThF4' '     7''      .63-.366-.004    ',      34.37],
-                   ['LiF-BeF2-ThF4' '     8''      .389-.611        ',          709.89],
-                   ['NaBF4-NaF' '         9' '      .92-.08          ',        2068],
-                   ['NaBF4-NaF' '         10' '     .389-.611        '   ,         2095]]
-    print(np.matrix(salt_matrix))
-    print ('')
-    
-    # Determines the price of the fuel salt based on a given index.
-    if bypass.upper() == 'NO':
-        salt_opt = index_check(salt_matrix, 'Enter salt index: ')
-    else:
-        salt_opt = 1
-    salt_price = salt_matrix[1+salt_opt][1]
-    
-    # Determines the volume of fuel salt needed.
-    # TODO: find a way to determine volume based on plant size
-    if bypass.upper() == 'NO':
-        vol_salt = float_check('Enter fuel salt volume [m^3]: ')
-    else:
-        vol_salt = 40
-    tot_salt = salt_price * vol_salt
-    print('Fuel salt price is: $', tot_salt)
-    print ('')
+    nuc_salt = nuc_salt_cost(bypass)
+    prim_salt = nuc_salt[0]
+    sec_salt = nuc_salt[1]
     
     # Chooses what type of coolant salt to use.
-    # TODO: add more salts, find better pricing data, find heat capacity info
-    print ('SALT COOLANT TABLE')
-    print ('')
-    coolant_matrix = [[['  Coolant Type' ' Index' ' Composition', '  Price [$/m^3]'],                                                 ],
-    ['___________________________________________________________',],
-    ['NaF-KF-ZrF4' '        1' '      4-27-69              ',            11700],
-    ['LiF-NaF-KF' '         2' '      29-12-59             ',          24100],
-    ['LiF-NaF-BeF2' '       3' '      24-46-30             ',        35000],
-    ['LiF-BeF2' '           4''      53-47                ',           52200],
-    ['NaNO3-NaNO2-KNO3' '   5''      7-48-45              ',            570],
-    ['NaF-NaBF4' '          6''      8-92                 ',              1500],
-    ['LiCL-KCL' '           7''      59-41                ',            1800],
-    ['Pb' '                 8''      1                    ',                 720],
-    ['Pb-Bi' '              9' '      1                    ',             74400],
-    ['Bi' '                 10' '     1                    ',                129000]] 
-    print(np.matrix(coolant_matrix))
-    print ('')
+    storage_costs = storage_salt_cost(thermal_storage_size, bypass)
     
-    # Determines the price of the coolant salt based on a given index.
-    if bypass.upper() == 'NO':
-        coolant_opt = index_check(coolant_matrix, 'Enter coolant index: ') 
-    else:
-        coolant_opt = 1
-    coolant_price = coolant_matrix[1+coolant_opt][1]
+    # Overnight costs
+    overnight = overnight_cost()
     
-    # Determines the price of the thermal storage salt based on a given index.
-    if bypass.upper() == 'NO':
-        storage_opt = index_check(coolant_matrix, 'Enter thermal storage salt index: ') 
-    else:
-        storage_opt = 5
-    storage_price = coolant_matrix[1+storage_opt][1]
+    # Fuel costs
+    fuel_costs = fuel_cost()
     
-    # Determines the volume of coolant salt needed.
-    # TODO: find a way to determine volume based on plant size
-    if bypass.upper() == 'NO':
-        vol_coolant = float_check('Enter coolant salt volume [m^3]: ')
-    else:
-        vol_coolant = 40
-    tot_coolant = coolant_price * vol_coolant
-    print('Coolant salt price is: $', tot_coolant)
-    print ('')
-    
-    # Determines the volume of thermal storage salt needed.
-    # TODO: find a way to determine volume based on plant size
-    if bypass.upper() == 'NO':
-        vol_storage = float_check('Enter thermal storage salt volume [m^3]: ')
-    else:
-        heat_mcapacity = 130 # Heat capacity of index 5 salt [J/mol]
-        mol_mass = 101.1*0.45 + 84.99*0.07 + 69.00*0.48 # [g/mol]
-        heat_capacity = heat_mcapacity / mol_mass
-        vol_storage = 1.1*(((thermal_storage_size*3600)/(heat_capacity*(570-344)))/1e6)
-    tot_storage = storage_price * vol_storage
-    print('Thermal storage salt price is: $', tot_storage)
-    print ('')
+    # Can costs
+    can_cost = can_cost()
     
     # Chooses what turbine model to use.
-    # TODO: more turbine options, better pricing data
-    print ('TURBINE TABLE')
-    print ('')
-    turbine_matrix = [['Index' '  Company'      '      Model',    '     Price [$/m^3]'],
-                      ['____________________________________________________'],
-                      ['  1'     '    Siemens'     '     SST-800     ',        1.55e7],
-                      ['  2'     '    Siemens'   '   SST-900      ',       1.85e7],
-                      ['  3'      '    Doosan'      '      MTD50         ',         1.02e6],
-                      ['  4'        '      GE'     '      9F 3-series   ',      1.5e7],
-                      ['  5'        '      GE'     '      9F 5-series   ',      1.75e7],
-                      ['  6'       '     DTEC'      '       GMB2550r     ',      8.5e6]]    
-    print(np.matrix(turbine_matrix))
-    print ('')
-    
-    # Determines the turbine price based on a given index.
-    # TODO: determine number of turbines based on plant size
-    if bypass.upper() == 'NO':
-        turbine_opt = index_check(turbine_matrix, 'Enter turbine index: ')    
-    else:
-        turbine_opt = 1
-    turbine_price = turbine_matrix[1+turbine_opt][1]
-    print('Turbine price is: $', turbine_price)
+    turbine_price = turbine_cost(bypass)
     
     # Chooses what generator model to use.
-    # TODO: add more generator options, better pricing data
-    print ('GENERATOR TABLE')
-    print ('')
-    generator_matrix = [['Index' '  Company'      '      Model'      '              Cooling      ',    '     Price [$/m^3]'],
-                        ['_______________________________________________________________________________',],
-                        ['  1'     '    Siemens'     '     SGen-1000A     '      '      Air      ', 1.55e7],
-                        ['  2'      '    Doosan'      '      DGEN-H         '      '  Hydrogen   ', 1.02e6],
-                        ['  3'        '      GE'     '        TOPAIR   '      '         Air      ', 1.5e7]]
-    print(np.matrix(generator_matrix))
-    print ('')
-    
-    # Determines the generator price based on a given index.
-    # TODO: determine number of turbines based on plant size
-    if bypass.upper() == 'NO':
-        generator_opt = index_check(generator_matrix, 'Enter generator index: ')    
-    else:
-        generator_opt = 1
-    generator_price = generator_matrix[1+generator_opt][1]
-    print('Generator price is: $', generator_price)
-    
-    # Determines the construction material prices based on demand
-    # TODO: add more material data, better pricing data, refine table to possible buildings
-    print ('CONSTRUCTION MATERIALS FOR 500 MWe REACTOR TABLE')
-    print ('')
-    material_matrix = [['  Material',         ' Estimated Material Amount [tons]',  '  Price [$/ton]'],
-                   ['____________________________________________________________'],
-                   ['High Quality Graphite [Can]', 700, 10000],
-                   ['High Quality Graphite [Core]', 700, 10000],
-                   ['Non-structural Concrete', 1000000, 6],
-                   ['Steel', 50000, 1000]]
-    print(np.matrix(material_matrix))
-    print ('')
-    
-    # Determines construction material costs
-    if bypass.upper() == 'NO':
-        material_opt = yes_no('Use estimated material amounts (YES/NO)?: ')
-    else:
-        material_opt = 'YES'
-    construction_labor = 0.25 # 25% construction labor cost.
-    if material_opt.upper() == 'YES':
-        tot_can = (material_matrix[2][1]*material_matrix[2][2]) * construction_labor
-        tot_core = (material_matrix[3][1]*material_matrix[3][2]) * construction_labor
-        tot_conc = (material_matrix[4][1]*material_matrix[4][2]) * construction_labor
-        tot_steel = (material_matrix[5][1]*material_matrix[5][2]) * construction_labor
-    else:
-        tot_can = (material_matrix[2][1]*material_matrix[2][2]) * construction_labor
-        tot_core = (material_matrix[3][1]*material_matrix[3][2]) * construction_labor
-        concrete_demand = float_check('Amount of concrete needed [tons]: ')
-        tot_conc = (concrete_demand * material_matrix[4][2]) * construction_labor
-        steel_demand = float_check('Amount of steel needed [tons]: ')
-        tot_steel = (steel_demand * material_matrix[4][2]) * construction_labor
-    initial_construction_costs = tot_can + tot_core + tot_conc + tot_steel
-    print('Initial construction costs: $', initial_construction_costs)
-    
+    generator_price = generator_cost(bypass)
+        
     # Determine licensing cost
     if bypass.upper() == 'NO':
         license = float_check('Licensing cost: $')
@@ -294,20 +90,15 @@ def plant_costs(
     if bypass.upper() == 'NO':
         avg_salary = float_check('Average annual salary of workforce: $')
     else:
-        avg_salary = 100e3
-    labor_mcost = labor_force * (avg_salary / 12)
-    print('Monthly labor costs: $', labor_mcost)
-    
-    # Monthly operating cost of plant.
-    # TODO: add more monthly costs such as for fuel
-    month_cost = labor_mcost
+        avg_salary = 150e3
+    labor_cost = labor_force * avg_salary
+    print('Yearly labor costs: $', labor_cost)
     
     # Determines the startup cost of the facility based on choices.
     # TODO: make sure all costs modeled are covered
-    salt_tot = tot_salt + tot_coolant + tot_storage
-    tot = turbine_price + generator_price + salt_tot + initial_construction_costs + license
-    initial_cost = tot
-    print('Facility flat cost without loan: $', initial_cost)
+    facility_cost = turbine_price + generator_price + overnight + can_cost + license
+    salt_cost = prim_salt + sec_salt + storage_costs
+    initial_cost = facility_cost + salt_cost + fuel_costs[0]
     
     # Input expected monthly revenue.
     if bypass.upper() == 'NO':
@@ -319,10 +110,10 @@ def plant_costs(
             pwr_cost = float_check('Selling power at [cents/kWh]: ')
         else:
             pwr_cost = 10
-        month_rev = (pwr_cost / 100) * ((reactor_power * 24 * 365) / (1000 * 12))
+        yearly_rev = (pwr_cost / 100) * ((reactor_power * 24 * 365) / 1000)
     else:
-        month_rev = float_check('Expected monthly revenue: $')
-    print('Monthly revenue is: $', month_rev)
+        yearly_rev = float_check('Expected yearly revenue: $')
+    print('Yearly revenue is: $', yearly_rev)
     
     # Determine plant life in years.
     if bypass.upper() == 'NO':
@@ -339,6 +130,7 @@ def plant_costs(
     # If a loan is taken.
     if loan_opt.upper() == 'YES':
         
+        print('Initial facility cost: $', initial_cost)
         loan_amount = float_check('Loan amount: $') # Loan principal
         print('Loan is: $', loan_amount)
         
@@ -354,15 +146,13 @@ def plant_costs(
         term_num = n*t               # Number of loan terms
         term_rate = r/n              # Interest rate for each term
         
-        loan_cost = (loan_amount*term_rate)/(1-(1+(term_rate))**(-term_num)) # Monthly loan cost
-        loan_tot = loan_cost * term_num
-        loan_mcost = loan_tot / (12 * work_length)
+        loan_mcost = (loan_amount*term_rate)/(1-(1+(term_rate))**(-term_num)) # Monthly loan cost
+        loan_tot = loan_mcost * term_num
+        loan_ycost = loan_tot / t
         loan_interest = loan_tot - loan_amount
-        tot_cost = (tot-loan_amount) + loan_tot
-        print('Facility real cost: $', tot_cost)
+        initial_cost = initial_cost - loan_amount
+        print('Initial facility cost with loan: $', initial_cost)
         print('Interest on loan: $', loan_interest)
-        month_tot = month_cost + loan_mcost
-        print('Monthly cost is: $', month_tot, ' dollars')
         
         # Calculate plant revenue throughout lifetime.
         # TODO: refine periodic costs (core replacement, salt replacement, etc.)
@@ -370,111 +160,115 @@ def plant_costs(
         fuel_check = 0
         core_check = 0
         can_check = 0
-        loan_check = 'YES' # Check to see if loan is active.
-        life_profit = [-initial_cost]
-        while time <= work_length * 12:
+        prim_salt_check = 0
+        sec_salt_check = 0
+        tert_salt_check = 0
+        life_cost = [initial_cost]
+        while time <= work_length:
             
             # Increments time checks.
             time = time + 1
             fuel_check = fuel_check + 1
-            core_check = core_check + 1
-            can_check = can_check + 1
             
-            # Fuel salt must be replaced every 8 years.
-            if fuel_check <= 8 * 12:
-                fuel_salt_replacement = 0
+            # Fuel must be replaced every year.
+            if fuel_check <= 7:
+                fuel_replacement = fuel_costs[fuel_check]
             else:
-                fuel_salt_replacement = tot_salt
+                fuel_replacement = fuel_costs[0]
                 fuel_check = 0
             
-            # Core graphite must be replaced every 4 years.
-            if core_check <= 4 * 12:
-                core_replacement = 0
-            else:
-                core_replacement = tot_core
-                core_check = 0
-            
             # Can must be replaced every 4 years.
-            if can_check <= 4 * 12:
-                can_replacement = 0
+            can_replace = replace(can_cost, can_check, 4)
+            can_replacement = can_replace[0]
+            can_check = can_replace[1]
+            
+            # Primary salt must be replaced every 8 years.
+            prim_salt_replace = replace(prim_salt, prim_salt_check, 8)
+            prim_salt_replacement = prim_salt_replace[0]
+            prim_salt_check = prim_salt_replace[1]
+                
+            # Secondary salt must be replaced every 32 years.
+            sec_salt_replace = replace(sec_salt, sec_salt_check, 32)
+            sec_salt_replacement = sec_salt_replace[0]
+            sec_salt_check = sec_salt_replace[1]
+                
+            # Tertiary salt must be replaced every 32 years.
+            tert_salt_replace = replace(storage_costs, tert_salt_check, 32)
+            tert_salt_replacement = tert_salt_replace[0]
+            tert_salt_check = tert_salt_replace[1]
+                 
+            # Calculates loan remainder
+            if time <= t:
+                loan_remainder = loan_tot - loan_ycost * time
             else:
-                can_replacement = tot_can
-                can_check = 0
-            
-            # Subtracts loan payments after end of loan.
-            if t > term_num and loan_check.upper() == 'YES':
-                month_tot = month_tot - loan_mcost
-                loan_check = 'NO'           
-            
-            # Calculates monthly profits.
-            monthly_profit = month_rev - month_tot
-            
-            # Calculates profits throughout plant life.
-            replacements = fuel_salt_replacement + core_replacement + can_replacement
-            loan_remainder = loan_tot - loan_mcost * t
-            if loan_remainder < 0:
                 loan_remainder = 0
-            tot_cost = tot_cost - monthly_profit # Amount in debt [$]
-            debt = -1 * tot_cost - replacements # Money plant has made [$]
-            life_profit.append(debt)
-        life_profit[-1] = life_profit[-1] * 0.9 - loan_remainder  #10% to decommision cost
-        print('Total revenue: $', life_profit[-1])
+                loan_ycost = 0
+                
+            # Calculates costs throughout plant life.
+            replacements = fuel_replacement + prim_salt_replacement + sec_salt_replacement + tert_salt_replacement + can_replacement
+            debt = replacements + labor_cost + loan_ycost # Plant costs [$]
+            life_cost.append(debt)
+        life_cost[-1] = (initial_cost + loan_amount) * 0.1 + loan_remainder  #20% to decommision cost
 
     # If loan is not taken.
     # TODO: refine periodic costs (core replacement, salt replacement, etc.)
     else:
+        print('Facility flat cost without loan: $', initial_cost)
         time = 0
         fuel_check = 0
         core_check = 0
         can_check = 0
-        life_profit = [-initial_cost]
-        while time <= work_length * 12:
+        prim_salt_check = 0
+        sec_salt_check = 0
+        tert_salt_check = 0
+        life_cost = [initial_cost]
+        while time <= work_length:
             
             # Increments time checks.
             time = time + 1
             fuel_check = fuel_check + 1
-            core_check = core_check + 1
-            can_check = can_check + 1
             
-            # Fuel salt must be replaced every 8 years.
-            if fuel_check <= 8 * 12:
-                fuel_salt_replacement = 0
+            # Fuel must be replaced every year.
+            if fuel_check <= 7:
+                fuel_replacement = fuel_costs[fuel_check]
             else:
-                fuel_salt_replacement = tot_salt
+                fuel_replacement = fuel_costs[0]
                 fuel_check = 0
             
-            # Core graphite must be replaced every 4 years.
-            if core_check <= 4 * 12:
-                core_replacement = 0
-            else:
-                core_replacement = tot_core
-                core_check = 0
+            # Can must be replaced every 4 years.
+            can_replace = replace(can_cost, can_check, 4)
+            can_replacement = can_replace[0]
+            can_check = can_replace[1]
             
-            # Can graphite must be replaced every 4 years.
-            if can_check <= 4 * 12:
-                can_replacement = 0
-            else:
-                can_replacement = tot_can
-                can_check = 0
-            
-            # Calculates monthly profits.
-            monthly_profit = month_rev - month_cost
-            
-            # Calculates profits throughout plant life. 
-            replacements = fuel_salt_replacement + core_replacement + can_replacement
-            tot = tot - monthly_profit # Amount in debt [$]
-            debt = -1 * tot - replacements # Money plant has made [$]
-            life_profit.append(debt)
-        life_profit[-1] = life_profit[-1] * 0.9  #10% to decommision cost
-        print('Total revenue: $', life_profit[-1])
+            # Primary salt must be replaced every 8 years.
+            prim_salt_replace = replace(prim_salt, prim_salt_check, 8)
+            prim_salt_replacement = prim_salt_replace[0]
+            prim_salt_check = prim_salt_replace[1]
+                
+            # Secondary salt must be replaced every 32 years.
+            sec_salt_replace = replace(sec_salt, sec_salt_check, 32)
+            sec_salt_replacement = sec_salt_replace[0]
+            sec_salt_check = sec_salt_replace[1]
+                
+            # Tertiary salt must be replaced every 32 years.
+            tert_salt_replace = replace(storage_costs, tert_salt_check, 32)
+            tert_salt_replacement = tert_salt_replace[0]
+            tert_salt_check = tert_salt_replace[1]
+                
+            # Calculates costs throughout plant life.
+            replacements = fuel_replacement + prim_salt_replacement + sec_salt_replacement + tert_salt_replacement + can_replacement
+            debt = replacements + labor_cost # Plant costs [$]
+            life_cost.append(debt)
+        life_cost[-1] = initial_cost * 0.1  #20% to decommision cost
     
     # Graphing
     # TODO: add monthly revenue plot, make plots look better, find break even point
-    month = np.linspace(0, int(work_length)*12,len(life_profit))
-    plt.semilogy(month,life_profit,ls='-', marker='.', c='r', markersize=6, label='Profit')
-    plt.xlabel('Time (months)', fontsize=14)                
-    plt.ylabel('Profits ($)', fontsize=14)
-    plt.title('Plant Lifetime Profits', fontsize=15)
+    year = np.linspace(0, int(work_length),len(life_cost))
+    plt.semilogy(year,life_cost,ls='-', marker='.', c='r', markersize=6, label='Costs')
+    plt.xlabel('Time (years)', fontsize=14)                
+    plt.ylabel('Costs ($)', fontsize=14)
+    plt.title('Plant Lifetime Costs', fontsize=15)
     plt.legend()
     plt.tight_layout()
-    return 
+    print('Total lifetime costs: $', sum(life_cost))
+    return life_cost
