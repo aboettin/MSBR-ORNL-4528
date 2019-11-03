@@ -4,20 +4,13 @@ import matplotlib.pyplot as plt
 # IMPORTANT NOTE
 # File "Economic_Data.py" must be downloaded to same directory as this file.
 
-# TODO: GENERAL TODOS
-# Add solar contributions.
-# Heat capacity data.
-# Add more options for equipment?
-# Move graphing commands to inside of function?
-# More costs?
-# Find better cost data?
-
 def plant_costs(
         reactor_power = 500e6, 
         thermal_storage_size = 1000e6, 
         turbine_size = 500e6, 
         generator_size = 500e6, 
-        max_ramp_up_rate = 30e6):
+        max_ramp_up_rate = 30e6,
+        solar_excess = 0):
     
     # Sample grid information.
     out_text ="*** GRID INFORMATION TABLE ***\n"
@@ -100,7 +93,7 @@ def plant_costs(
     salt_cost = prim_salt + sec_salt + storage_costs
     initial_cost = facility_cost + salt_cost + fuel_costs[0]
     
-    # Input expected monthly revenue.
+    # Input expected yearly revenue.
     if bypass.upper() == 'NO':
         sell_opt = yes_no('Do you have a price that power will be sold at (YES/NO)?: ')
     else:
@@ -114,6 +107,9 @@ def plant_costs(
     else:
         yearly_rev = float_check('Expected yearly revenue: $')
     print('Yearly revenue is: $', yearly_rev)
+    
+    # Buying excess solar power
+    solar_cost_offset = solar_excess * ((pwr_cost * 24 * 365 / 100) / 1000)
     
     # Determine plant life in years.
     if bypass.upper() == 'NO':
@@ -155,10 +151,9 @@ def plant_costs(
         print('Interest on loan: $', loan_interest)
         
         # Calculate plant revenue throughout lifetime.
-        # TODO: refine periodic costs (core replacement, salt replacement, etc.)
+        # TODO: refine periodic costs (can replacement, salt replacement, etc.)
         time = 0
         fuel_check = 0
-        core_check = 0
         can_check = 0
         prim_salt_check = 0
         sec_salt_check = 0
@@ -206,7 +201,7 @@ def plant_costs(
                 
             # Calculates costs throughout plant life.
             replacements = fuel_replacement + prim_salt_replacement + sec_salt_replacement + tert_salt_replacement + can_replacement
-            debt = replacements + labor_cost + loan_ycost # Plant costs [$]
+            debt = replacements + labor_cost + loan_ycost - solar_cost_offset # Plant costs [$]
             life_cost.append(debt)
         life_cost[-1] = (initial_cost + loan_amount) * 0.1 + loan_remainder  #20% to decommision cost
 
@@ -216,7 +211,6 @@ def plant_costs(
         print('Facility flat cost without loan: $', initial_cost)
         time = 0
         fuel_check = 0
-        core_check = 0
         can_check = 0
         prim_salt_check = 0
         sec_salt_check = 0
@@ -257,7 +251,7 @@ def plant_costs(
                 
             # Calculates costs throughout plant life.
             replacements = fuel_replacement + prim_salt_replacement + sec_salt_replacement + tert_salt_replacement + can_replacement
-            debt = replacements + labor_cost # Plant costs [$]
+            debt = replacements + labor_cost - solar_cost_offset # Plant costs [$]
             life_cost.append(debt)
         life_cost[-1] = initial_cost * 0.1  #20% to decommision cost
     
@@ -271,4 +265,4 @@ def plant_costs(
     plt.legend()
     plt.tight_layout()
     print('Total lifetime costs: $', sum(life_cost))
-    return life_cost
+    return
