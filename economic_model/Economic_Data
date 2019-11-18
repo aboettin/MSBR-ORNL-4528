@@ -53,6 +53,38 @@ def float_check(comment):
            break
     return variable
 
+# Checks if input is valid integer
+def int_check(comment):
+    variable = input(comment)
+    attempt = 0
+    while True:
+        try:
+           variable = int(variable)
+        except ValueError:
+           attempt = attempt + 1
+           if attempt > 3:
+               print('')
+               print('ERROR: TOO MANY INPUT ATTEMPTS. EXITING PROGRAM.')
+               sys.exit()
+               break
+           print('ERROR: INVALID INPUT')
+           variable = input(comment)
+           continue
+        if int(variable) < 0:
+           attempt = attempt + 1
+           if attempt > 3:
+               print('')
+               print('ERROR: TOO MANY INPUT ATTEMPTS. EXITING PROGRAM.')
+               sys.exit()
+               break
+           print('ERROR: INVALID INPUT')
+           variable = input(comment)
+           continue
+        else:
+           variable = int(variable)
+           break
+    return variable
+
 # Checks if a "YES/NO" input is valid
 def yes_no(comment):
     variable = input(comment)
@@ -163,7 +195,7 @@ def fuel_cost():
     return cost
 
 # Estimated costs of can.
-def can_cost():   
+def can_cost(bypass):   
     print('ESTIMATED CAN COSTS')
     print('')
     table = [['Material                    ', ' Amount   ', 'Units', 'Price per Unit ($)'],
@@ -180,9 +212,13 @@ def can_cost():
     cost = 0
     for i in range(len(table)-2):
         cost += table[i+2][1] * table[i+2][-1]
-    print('Total Can Costs: $', cost)
+    if bypass.upper() == 'NO':
+        number = int_check('Number of cans used in 4 year cycle: ')
+    else:
+        number = 4
+    print('Total Can Costs: $', number * cost)
     print('')
-    return cost
+    return number * cost
 
 # Chooses which type of fuel salt to use.
 def nuc_salt_cost(bypass):
