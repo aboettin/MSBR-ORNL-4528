@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 # File "Economic_Data.py" must be downloaded to same directory as this file.
 
 def plant_costs(
-        reactor_power = 500e6, 
+        reactor_power = 1000e6, 
         thermal_storage_size = 1000e6, 
         turbine_size = 500e6, 
         generator_size = 500e6, 
@@ -24,6 +24,7 @@ def plant_costs(
     
     # Import functions.
     from Economic_Data import float_check
+    from Economic_Data import int_check
     from Economic_Data import yes_no
     from Economic_Data import overnight_cost
     from Economic_Data import can_cost
@@ -53,7 +54,7 @@ def plant_costs(
     fuel_costs = fuel_cost()
     
     # Can costs
-    can_cost = can_cost()
+    can_cost = can_cost(bypass)
     
     # Chooses what turbine model to use.
     turbine_price = turbine_cost(bypass)
@@ -69,15 +70,7 @@ def plant_costs(
 
     # Determines plant labor costs.
     if bypass.upper() == 'NO':
-        labor_force = input('Number of people working at plant: ')
-        while True:
-            if labor_force.isdigit():
-               labor_force = int(labor_force)
-               break
-            else:
-               print('ERROR: INVALID INPUT')
-               labor_force = input('Number of people working at plant: ')
-               continue
+        labor_force = int_check('Number of people working at plant: ')
     else:
         labor_force = 209 # Estimate from ThorCon website
     if bypass.upper() == 'NO':
@@ -116,7 +109,11 @@ def plant_costs(
         work_length = float_check('Working life of the plant (years): ')
     else:
         work_length = 60
-
+    
+    # Initial facility cost
+    print('Overnight capital cost:', initial_cost / (reactor_power / 1000), '$/kW.')
+    print('Initial facility cost: $', initial_cost)
+    
     # Determines if a loan is used.
     if bypass.upper() == 'NO':
         loan_opt = yes_no('Will a loan be used (YES/NO)?: ')
@@ -126,7 +123,6 @@ def plant_costs(
     # If a loan is taken.
     if loan_opt.upper() == 'YES':
         
-        print('Initial facility cost: $', initial_cost)
         loan_amount = float_check('Loan amount: $') # Loan principal
         print('Loan is: $', loan_amount)
         
@@ -203,12 +199,12 @@ def plant_costs(
             replacements = fuel_replacement + prim_salt_replacement + sec_salt_replacement + tert_salt_replacement + can_replacement
             debt = replacements + labor_cost + loan_ycost - solar_cost_offset # Plant costs [$]
             life_cost.append(debt)
-        life_cost[-1] = (initial_cost + loan_amount) * 0.1 + loan_remainder  #20% to decommision cost
+        life_cost[-1] = (initial_cost + loan_amount) * 0.1 + loan_remainder  #10% to decommision cost
+        life_cost = np.array(life_cost) / (reactor_power / 1000)
 
     # If loan is not taken.
     # TODO: refine periodic costs (core replacement, salt replacement, etc.)
     else:
-        print('Facility flat cost without loan: $', initial_cost)
         time = 0
         fuel_check = 0
         can_check = 0
@@ -253,7 +249,8 @@ def plant_costs(
             replacements = fuel_replacement + prim_salt_replacement + sec_salt_replacement + tert_salt_replacement + can_replacement
             debt = replacements + labor_cost - solar_cost_offset # Plant costs [$]
             life_cost.append(debt)
-        life_cost[-1] = initial_cost * 0.1  #20% to decommision cost
+        life_cost[-1] = initial_cost * 0.1  #10% to decommision cost
+        life_cost = np.array(life_cost) / (reactor_power / 1000)
     
     # Graphing
     # TODO: add monthly revenue plot, make plots look better, find break even point
@@ -266,3 +263,4 @@ def plant_costs(
     plt.tight_layout()
     print('Total lifetime costs: $', sum(life_cost))
     return
+a = plant_costs()
