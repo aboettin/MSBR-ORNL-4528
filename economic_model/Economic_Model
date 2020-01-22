@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 # File "Economic_Data.py" must be downloaded to same directory as this file.
 
 def plant_costs(
+        grid_size = 1000e6,
         reactor_power = 1000e6, 
         thermal_storage_size = 1000e6, 
         turbine_size = 500e6, 
@@ -39,40 +40,43 @@ def plant_costs(
     bypass = yes_no('Would you like to bypass user inputs in order to test code (YES/NO)?: ')
     print('')
     
+    # Scaling factor
+    SF = grid_size/1000e6
+    
     # Chooses which type of fuel salt to use.
     nuc_salt = nuc_salt_cost(bypass)
-    prim_salt = nuc_salt[0]
-    sec_salt = nuc_salt[1]
+    prim_salt = SF * nuc_salt[0]
+    sec_salt = SF * nuc_salt[1]
     
     # Chooses what type of coolant salt to use.
-    storage_costs = storage_salt_cost(thermal_storage_size, bypass)
+    storage_costs = SF * storage_salt_cost(thermal_storage_size, bypass)
     
     # Overnight costs
-    overnight = overnight_cost()
+    overnight = SF * overnight_cost()
     
     # Fuel costs
-    fuel_costs = fuel_cost()
+    fuel_costs = SF * fuel_cost()
     
     # Can costs
-    can_cost = can_cost(bypass)
+    can_cost = SF * can_cost(bypass)
     
     # Chooses what turbine model to use.
-    turbine_price = turbine_cost(bypass)
+    turbine_price = SF * turbine_cost(bypass)
     
     # Chooses what generator model to use.
-    generator_price = generator_cost(bypass)
+    generator_price = SF * generator_cost(bypass)
         
     # Determine licensing cost
     if bypass.upper() == 'NO':
-        license = float_check('Licensing cost: $')
+        license = SF * float_check('Licensing cost: $')
     else:
-        license = 100e6
+        license = SF * 100e6
 
     # Determines plant labor costs.
     if bypass.upper() == 'NO':
-        labor_force = int_check('Number of people working at plant: ')
+        labor_force = int_check('Number of people working at plant(s): ')
     else:
-        labor_force = 209 # Estimate from ThorCon website
+        labor_force = np.sqrt(SF) * 209 # Estimate from ThorCon website
     if bypass.upper() == 'NO':
         avg_salary = float_check('Average annual salary of workforce: $')
     else:
@@ -257,10 +261,11 @@ def plant_costs(
     year = np.linspace(0, int(work_length),len(life_cost))
     plt.semilogy(year,life_cost,ls='-', marker='.', c='r', markersize=6, label='Costs')
     plt.xlabel('Time (years)', fontsize=14)                
-    plt.ylabel('Costs ($)', fontsize=14)
+    plt.ylabel('Costs ($/kWe)', fontsize=14)
     plt.title('Plant Lifetime Costs', fontsize=15)
     plt.legend()
     plt.tight_layout()
     print('Total lifetime costs: $', sum(life_cost))
+    plt.savefig('Lifetime Costs')
     return
 a = plant_costs()
