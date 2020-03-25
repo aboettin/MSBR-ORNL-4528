@@ -34,7 +34,7 @@ def power_costs(
         nuclear_price[i] = nuc_costs(nuclear_load, thermal_storage_size, heat_eff, parameters)
         # Total Power Costs (per kWh)
         power_price[i] = (solar_price[i] * solar_grid_fraction) + (nuclear_price[i] * (1 - solar_grid_fraction))
-    plt.semilogy(nuclear_price, grid_size, ls='-', marker='.', c='r', markersize=6)
+    plt.semilogy(power_price, grid_size, ls='-', marker='.', c='r', markersize=6)
     plt.xlabel('$', fontsize=14)                
     plt.ylabel('Q', fontsize=14)
     plt.tight_layout()
