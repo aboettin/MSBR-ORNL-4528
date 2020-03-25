@@ -1,14 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Feb 23 19:20:44 2020
-
-@author: alexb
-"""
-
-#import numpy as np
-#import scipy
-#import matplotlib.pyplot as plt
-
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
@@ -50,5 +39,3 @@ def power_costs(
     plt.ylabel('Q', fontsize=14)
     plt.tight_layout()
     return power_price
-a=power_costs()
-#print(a)
