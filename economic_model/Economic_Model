@@ -44,27 +44,31 @@ def plant_costs(
     SF = grid_size/1000e6
     
     # Chooses which type of fuel salt to use.
-    nuc_salt = nuc_salt_cost(bypass)
+    nuc_salt = nuc_salt_cost(bypass, 0, 0, 0, 'YES')
     prim_salt = SF * nuc_salt[0]
     sec_salt = SF * nuc_salt[1]
     
     # Chooses what type of coolant salt to use.
-    storage_costs = SF * storage_salt_cost(thermal_storage_size, bypass)
+    storage_costs = storage_salt_cost(thermal_storage_size, bypass, 0, 0, 'MAYBE', 'YES')
+    storage_costs = SF * storage_costs[0]
     
     # Overnight costs
-    overnight = SF * overnight_cost()
+    overnight = SF * overnight_cost('YES')
     
     # Fuel costs
-    fuel_costs = SF * fuel_cost()
+    fuel_costs = SF * fuel_cost('YES')
     
     # Can costs
-    can_cost = SF * can_cost(bypass)
+    can_cost = can_cost(bypass, 0, 'YES')
+    can_cost = SF * can_cost[0]
     
     # Chooses what turbine model to use.
-    turbine_price = SF * turbine_cost(bypass)
+    turbine_price = turbine_cost(bypass, 0, 'YES')
+    turbine_price = SF * turbine_price[0]
     
     # Chooses what generator model to use.
-    generator_price = SF * generator_cost(bypass)
+    generator_price = generator_cost(bypass, 0, 'YES')
+    generator_price = SF * generator_price[0]
         
     # Determine licensing cost
     if bypass.upper() == 'NO':
@@ -262,10 +266,8 @@ def plant_costs(
     plt.semilogy(year,life_cost,ls='-', marker='.', c='r', markersize=6, label='Costs')
     plt.xlabel('Time (years)', fontsize=14)                
     plt.ylabel('Costs ($/kWe)', fontsize=14)
-    plt.title('Plant Lifetime Costs', fontsize=15)
     plt.legend()
     plt.tight_layout()
     print('Total lifetime costs: $', sum(life_cost))
     plt.savefig('Lifetime Costs')
     return
-a = plant_costs()
