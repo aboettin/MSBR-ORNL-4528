@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Oct 16 15:32:26 2019
-
-@author: alexb
-"""
-
 # IMPORTANT NOTE
 # File "Economic_Data.py" must be downloaded to same directory as this file.
 import numpy as np
@@ -355,5 +348,3 @@ def solar_costs(
     if solar_fract == 0:
         solar_costs = 0
     return solar_costs, load_avg, thermal_storage_size
-a=solar_costs()
-print(a)
