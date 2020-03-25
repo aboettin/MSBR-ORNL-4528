@@ -92,6 +92,19 @@ def yes_no(comment):
     while True:
         if variable.upper() == 'YES' or variable.upper() == 'NO':
             break
+        if variable.upper() == 'MAYBE':
+            thermal_check = input('Is this value repeating and varying (YES/NO)?: ')
+            if thermal_check.upper() == 'YES':
+                break
+            else:
+                attempt = attempt + 1
+                if attempt > 3:
+                    print('')
+                    print('ERROR: TOO MANY INPUT ATTEMPTS. EXITING PROGRAM.')
+                    sys.exit()
+                    break
+                print('ERROR: INVALID ANSWER')
+                variable = input(comment) 
         else:
             attempt = attempt + 1
             if attempt > 3:
@@ -114,63 +127,62 @@ def replace(replacement, check, year):
     return value, check
 
 # Estimated costs of nuclear island.
-def overnight_cost():
-    print('ESTIMATED NUCLEAR PLANT COSTS')
-    print('')
+def overnight_cost(table_opt):        
     nuc_table = [['Item                  ', '  Amount   ', 'Cost per Unit [Million $]'],
-                       ['__________________________________________________________________'],
-                       ['Pond                          ', 1, '                    ' , 1.605],
-                       ['Pond Condensers               ', 8, '                    ' , 0.206],
-                       ['Silo Hall                     ', 1, '                   ' , 21.271],
-                       ['PMOD Grid                     ', 4, '                    ' , 3.518],
-                       ['Basement                      ', 4, '                     ', 0.76],
-                       ['Can Silo Radtank              ', 8, '                    ', 1.019],
-                       ['Can Silo and Membrane Wall    ', 8, '                    ', 0.711],
-                       ['Fuelsalt Drain Tank, Heat Sink', 8, '                    ', 2.153],
-                       ['Offgas Holdup Tanks and Silos ', 8, '                    ', 0.597],
-                       ['PLP Motor/Impeller            ', 5, '                      ', 0.3],
-                       ['Secondary Loop Pump           ', 5, '                    ', 0.595],
-                       ['Steam Generating Cell         ', 4, '                    ', 1.778],
-                       ['Secondary Heat Exchangers     ', 4, '                    ', 0.228],
-                       ['Tertiary Heat Exchangers      ', 4, '                    ', 0.267],
-                       ['Tertiary Loop Pump            ', 5, '                    ', 0.443],
-                       ['Coolant Salt Drain Tank       ', 1, '                      ', 3.0],
-                       ['Off-gas Clean-up System       ', 1, '                      ', 5.0],
-                       ['Gantry Crane                  ', 1, '                     ', 15.0],
-                       ['Control Room                  ', 1, '                     ', 24.0]]
-    print(np.matrix(nuc_table))
+                 ['__________________________________________________________________'],
+                 ['Pond                          ', 1, '                    ' , 1.605],
+                 ['Pond Condensers               ', 8, '                    ' , 0.206],
+                 ['Silo Hall                     ', 1, '                   ' , 21.271],
+                 ['PMOD Grid                     ', 4, '                    ' , 3.518],
+                 ['Basement                      ', 4, '                     ', 0.76],
+                 ['Can Silo Radtank              ', 8, '                    ', 1.019],
+                 ['Can Silo and Membrane Wall    ', 8, '                    ', 0.711],
+                 ['Fuelsalt Drain Tank, Heat Sink', 8, '                    ', 2.153],
+                 ['Offgas Holdup Tanks and Silos ', 8, '                    ', 0.597],
+                 ['PLP Motor/Impeller            ', 5, '                      ', 0.3],
+                 ['Secondary Loop Pump           ', 5, '                    ', 0.595],
+                 ['Steam Generating Cell         ', 4, '                    ', 1.778],
+                 ['Secondary Heat Exchangers     ', 4, '                    ', 0.228],
+                 ['Tertiary Heat Exchangers      ', 4, '                    ', 0.267],
+                 ['Tertiary Loop Pump            ', 5, '                    ', 0.443],
+                 ['Coolant Salt Drain Tank       ', 1, '                      ', 3.0],
+                 ['Off-gas Clean-up System       ', 1, '                      ', 5.0],
+                 ['Gantry Crane                  ', 1, '                     ', 15.0],
+                 ['Control Room                  ', 1, '                     ', 24.0]]
+    if table_opt.upper() == 'YES':
+        print('ESTIMATED NUCLEAR PLANT COSTS')
+        print('')
+        print(np.matrix(nuc_table))
     nuc_cost = 0
     for i in range(len(nuc_table)-2):
         nuc_cost += (nuc_table[i+2][1] * nuc_table[i+2][-1]) * 1e6
-    print('Total Nuclear Island Costs: $', nuc_cost)
-    print('')
-
-    print('ESTIMATED STEAM AND ELECTRICAL COSTS')
-    print('')
     sae_table = [['Item                  ', '  Amount   ', 'Cost per Unit [Million $]'],
-                       ['__________________________________________________________________'],
-                       ['Land                          ', 0, '                    ', 0.005],
-                       ['Steam Plant Buildings         ', 2, '                    ', 23.140],
-                       ['Feedwater System              ', 2, '                   ', 37.866],
-                       ['Steam Piping                  ', 2, '                   ', 24.432],
-                       ['Condenser                     ', 2, '                    ', 8.609],
-                       ['Cooling (misc)                ', 2, '                   ', 18.612],
-                       ['Electrical                    ', 2, '                   ', 38.555],
-                       ['Control Room                  ', 2, '                   ', 16.548]]
-    print(np.matrix(sae_table))
+                 ['__________________________________________________________________'],
+                 ['Land                          ', 0, '                    ', 0.005],
+                 ['Steam Plant Buildings         ', 2, '                    ', 23.140],
+                 ['Feedwater System              ', 2, '                   ', 37.866],
+                 ['Steam Piping                  ', 2, '                   ', 24.432],
+                 ['Condenser                     ', 2, '                    ', 8.609],
+                 ['Cooling (misc)                ', 2, '                   ', 18.612],
+                 ['Electrical                    ', 2, '                   ', 38.555],
+                 ['Control Room                  ', 2, '                   ', 16.548]]
     sae_cost = 0 # Initial $100 million includes incidentals
     for i in range(len(sae_table)-2):
         sae_cost += (sae_table[i+2][1] * sae_table[i+2][-1]) * 1e6
-    print('Total Nuclear Island Costs: $', sae_cost)
-    print('')
+    if table_opt.upper() == 'YES':
+        print('Total Nuclear Island Costs: $', nuc_cost)
+        print('')
+        print('ESTIMATED STEAM AND ELECTRICAL COSTS')
+        print('')
+        print(np.matrix(sae_table))
+        print('Total Nuclear Island Costs: $', sae_cost)
+        print('')
     budget_factor = 2.5 # Presume everything will be 2.5x the price.
     cost = budget_factor * (nuc_cost + sae_cost)
     return cost    
 
 # Estimated fuel costs.
-def fuel_cost():    
-    print('ESTIMATED FUEL COSTS OVER FUEL LIFE')
-    print('')
+def fuel_cost(table_opt):    
     price = [['Material', 'Price per Unit [$/kg]'],
                        ['________________________________________________'],
                        ['Uranium   ', 44.38],
@@ -186,16 +198,19 @@ def fuel_cost():
                        ['5', '               ', 0.0, '             ', 194.0, '         ', 0],
                        ['6', '               ', 0.0, '             ', 194.0, '         ', 0],
                        ['7', '               ', 0.0, '             ', 194.0, '         ', 0]]
-    print(np.matrix(table))
     cost = np.zeros(shape=(len(table)-2,1),dtype='f')
     for i in range(len(table)-2):
         cost[i] = 5*table[i+2][2] * (0.2*price[3][-1]+0.8*price[2][-1]) + 5*table[i+2][4] * (0.2*price[3][-1]+0.8*price[2][-1]) + table[i+2][6] * price[4][-1]
-    print('Total Fuel Costs Over 8 Years: $', sum(cost))
-    print('')
+    if table_opt.upper() == 'YES':
+        print('ESTIMATED FUEL COSTS OVER FUEL LIFE')
+        print('')
+        print(np.matrix(table))
+        print('Total Fuel Costs Over 8 Years: $', sum(cost))
+        print('')
     return cost
 
 # Estimated costs of can.
-def can_cost(bypass):   
+def can_cost(bypass, number, table_opt):   
     print('ESTIMATED CAN COSTS')
     print('')
     table = [['Material                    ', ' Amount   ', 'Units', 'Price per Unit ($)'],
@@ -208,90 +223,110 @@ def can_cost(bypass):
                        ['PLP Pump                        ', 2213, '       kW                ', 75],
                        ['Heating Tape                     ', 170, '      m^2              ', 1600],
                        ['Aerogel Insulation               ', 170, '      m^2                ', 63]]
-    print(np.matrix(table))
     cost = 0
     for i in range(len(table)-2):
         cost += table[i+2][1] * table[i+2][-1]
-    if bypass.upper() == 'NO':
+    if bypass.upper() == 'NO' and table_opt.upper() == 'YES':
         number = int_check('Number of cans used in 4 year cycle: ')
+    elif bypass.upper() == 'YES' and table_opt.upper() == 'NO':
+        number = number
     else:
-        number = 4
-    print('Total Can Costs: $', number * cost)
-    print('')
-    return number * cost
+        number = 8
+    can_cost = number * cost
+    if table_opt.upper() == 'YES':
+        print(np.matrix(table))
+        print('Total Can Costs: $', can_cost)
+        print('')
+    return can_cost, number
 
 # Chooses which type of fuel salt to use.
-def nuc_salt_cost(bypass):
+def nuc_salt_cost(bypass, index_repeat, prim_repeat, sec_repeat, table_opt):
     # TODO: add more salts, find better pricing data, find heat capacity info
-    print('NUCLEAR ISLAND SALT TYPE TABLE')
-    print('')
     table = [['  Salt Type', ' Index', ' Weight Composition', '  Price [$/kg]'],
                    ['______________________________________________________________'],
                    ['   NaF-BeF2' '         1' '                .54-.46            ',       35]]
-    print(np.matrix(table))
-    print('')
-    
+    if table_opt.upper() == 'YES':
+        print('NUCLEAR ISLAND SALT TYPE TABLE')
+        print('')
+        print(np.matrix(table))
+        print('')    
     # Determines the price of the fuel salt based on a given index.
-    if bypass.upper() == 'NO':
+    if bypass.upper() == 'NO' and table_opt == 'YES':
         index = index_check(table, 'Enter salt index: ')
+    elif bypass.upper() == 'NO' and table_opt == 'NO':
+        index = index_repeat
     else:
         index = 1
     price = table[1+index][1]
-    
     # Determines the volume of fuel salt needed.
     # TODO: find a way to determine volume based on plant size
-    if bypass.upper() == 'NO':
+    if bypass.upper() == 'NO' and table_opt == 'YES':
         mass_prim = float_check('Enter primary loop salt amount [kg]: ')
+    elif bypass.upper() == 'NO' and table_opt == 'NO':
+        mass_prim = prim_repeat
     else:
         mass_prim = 48434
     prim_cost = price * mass_prim
-    print('Primary loop salt price is: $', prim_cost)
-    print('')
-    if bypass.upper() == 'NO':
+    if table_opt.upper() == 'YES':
+        print('Primary loop salt price is: $', prim_cost)
+        print('')
+    if bypass.upper() == 'NO' and table_opt == 'YES':
         mass_sec = float_check('Enter secondary loop salt amount [kg]: ')
+    elif bypass.upper() == 'NO' and table_opt == 'NO':
+        mass_sec = sec_repeat
     else:
         mass_sec = 65034
     sec_cost = price * mass_sec
-    print('Secondary loop salt price is: $', sec_cost)
-    print('')
-    return prim_cost, sec_cost
+    if table_opt.upper() == 'YES':
+        print('Secondary loop salt price is: $', sec_cost)
+        print('')
+    return prim_cost, sec_cost, mass_prim, mass_sec
 
 # Chooses what type of coolant salt to use.
-def storage_salt_cost(thermal_storage_size, bypass):
+def storage_salt_cost(thermal_storage_size, bypass, index_repeat, vol_repeat, thermal_check, table_opt):
     # TODO: add more salts, find better pricing data, find heat capacity info
-    print('STORAGE SALT COOLANT TABLE')
-    print('')
     table = [[['   Coolant Type' ' Index' ' Composition', '  Price [$/kg]'],                                                 ],
     ['___________________________________________________________',],
     ['NaNO3-NaNO2-KNO3' '     1''     7-48-45           ',            0.5]] 
-    print(np.matrix(table))
-    print('')    
-       
+    if table_opt.upper() == 'YES':
+        print('STORAGE SALT COOLANT TABLE')
+        print('')
+        print(np.matrix(table))
+        print('')       
     # Determines the price of the thermal storage salt based on a given index.
-    if bypass.upper() == 'NO':
+    if bypass.upper() == 'NO' and table_opt == 'YES':
         index = index_check(table, 'Enter thermal storage salt index: ') 
+    elif bypass.upper() == 'NO' and table_opt == 'NO':
+        index = index_repeat
     else:
         index = 1
     price = table[1+index][1]
+    heat_mcapacity = 130 # Heat capacity of index 5 salt [J/mol]
+    mol_mass = 101.1*0.45 + 84.99*0.07 + 69.00*0.48 # [g/mol]
+    heat_capacity = heat_mcapacity / mol_mass
     # Determines the volume of thermal storage salt needed.
     # TODO: find a way to determine volume based on plant size
-    if bypass.upper() == 'NO':
-        vol = float_check('Enter thermal storage salt volume [kg]: ')
+    if bypass.upper() == 'NO' and table_opt == 'YES' and thermal_check.upper() == 'MAYBE':
+        thermal_check = yes_no('Would you like to calculate based on thermal storage value (YES/NO)?: ')
+        if thermal_check.upper() == 'YES':
+            vol = 1.1*(((thermal_storage_size*3600)/(heat_capacity*(570-344)))/1e3)
+        else:
+            vol = float_check('Enter thermal storage salt volume [kg]: ')
+    elif bypass.upper() == 'NO' and table_opt == 'NO' and thermal_check == 'NO':
+        vol = vol_repeat
+    elif bypass.upper() == 'NO' and table_opt == 'NO' and thermal_check == 'YES':
+        vol = 1.1*(((thermal_storage_size*3600)/(heat_capacity*(570-344)))/1e3)
     else:
-        heat_mcapacity = 130 # Heat capacity of index 5 salt [J/mol]
-        mol_mass = 101.1*0.45 + 84.99*0.07 + 69.00*0.48 # [g/mol]
-        heat_capacity = heat_mcapacity / mol_mass
         vol = 1.1*(((thermal_storage_size*3600)/(heat_capacity*(570-344)))/1e3)
     cost = price * vol
-    print('Thermal storage salt price is: $', cost)
-    print('')
-    return cost
+    if table_opt.upper() == 'YES':
+        print('Thermal storage salt price is: $', cost)
+        print('')
+    return cost, index, vol, thermal_check
 
 # Chooses what turbine model to use.
-def turbine_cost(bypass):
+def turbine_cost(bypass, index_repeat, table_opt):
     # TODO: more turbine options, better pricing data
-    print('TURBINE TABLE')
-    print('')
     table = [['Index   ' '  Company   '      '      Model',    '     Price [$/m^3]'],
                       ['____________________________________________________'],
                       ['    1'   '     Siemens'     '       SST-800        ',        1.55e7],
@@ -300,39 +335,47 @@ def turbine_cost(bypass):
                       ['    4'         '          GE'     '   9F 3-series        ',      1.5e7],
                       ['    5'         '          GE'     '   9F 5-series        ',      1.75e7],
                       ['    6'      '        DTEC'      '      GMB2550r         ',      8.5e6]]    
-    print(np.matrix(table))
-    print('')
-    
+    if table_opt.upper() == 'YES':
+        print('TURBINE TABLE')
+        print('')
+        print(np.matrix(table))
+        print('')  
     # Determines the turbine price based on a given index.
     # TODO: determine number of turbines based on plant size
-    if bypass.upper() == 'NO':
-        index = index_check(table, 'Enter turbine index: ')    
+    if bypass.upper() == 'NO' and table_opt == 'YES':
+        index = index_check(table, 'Enter turbine index: ')
+    elif bypass.upper() == 'NO' and table_opt == 'NO':
+        index = index_repeat   
     else:
         index = 1
     cost = table[1+index][1]
-    print('Turbine price is: $', cost)
-    print('')
-    return cost
+    if table_opt.upper() == 'YES':
+        print('Turbine price is: $', cost)
+        print('')
+    return cost, index
 
 # Chooses what generator model to use.
-def generator_cost(bypass):
+def generator_cost(bypass, index_repeat, table_opt):
     # TODO: add more generator options, better pricing data
-    print ('GENERATOR TABLE')
-    print ('')
     table = [['Index   ' '  Company   '      '      Model'      '        Cooling      ',    '     Price [$/m^3]'],
                         ['__________________________________________________________________________',],
                         ['    1'     '     Siemens'     '    SGen-1000A     '      '       Air              ', 1.55e7],
                         ['    2'      '      Doosan'      '        DGEN-H      '      ' Hydrogen               ', 1.02e6],
                         ['    3'        '          GE'     '        TOPAIR   '      '         Air              ', 1.5e7]]
-    print(np.matrix(table))
-    print ('')
-    
+    if table_opt.upper() == 'YES':
+        print ('GENERATOR TABLE')
+        print ('')
+        print(np.matrix(table))
+        print ('')   
     # Determines the generator price based on a given index.
     # TODO: determine number of generators based on plant size
-    if bypass.upper() == 'NO':
-        index = index_check(table, 'Enter generator index: ')    
+    if bypass.upper() == 'NO' and table_opt == 'YES':
+        index = index_check(table, 'Enter generator index: ')   
+    elif bypass.upper() == 'NO' and table_opt == 'NO':
+        index = index_repeat
     else:
         index = 1
     cost = table[1+index][1]
-    print('Generator price is: $', cost)
-    return cost
+    if table_opt.upper() == 'YES':
+        print('Generator price is: $', cost)
+    return cost, index
