@@ -14,12 +14,12 @@ def power_costs(
     from Cost_Functions import solar_costs
     from Cost_Functions import nuc_costs
     from Cost_Functions import bypass
-    # Determine Peak Solar Fraction
-    peak_solar = solar_fraction(solar_grid_fraction)
     # Input Repeatable Parameters
     parameters = bypass(1)
-    # Generate Supply Curve
     grid_size = np.linspace(0, max_grid_size, 1000)
+    # Determine Peak Solar Fraction
+    peak_solar = solar_fraction(solar_grid_fraction)
+    # Generate Supply Curve
     solar_price = np.zeros(len(grid_size))
     nuclear_price = np.zeros(len(grid_size))
     power_price = np.zeros(len(grid_size))
@@ -34,8 +34,9 @@ def power_costs(
         nuclear_price[i] = nuc_costs(nuclear_load, thermal_storage_size, heat_eff, parameters)
         # Total Power Costs (per kWh)
         power_price[i] = (solar_price[i] * solar_grid_fraction) + (nuclear_price[i] * (1 - solar_grid_fraction))
-    plt.semilogy(power_price, grid_size, ls='-', marker='.', c='r', markersize=6)
-    plt.xlabel('$', fontsize=14)                
-    plt.ylabel('Q', fontsize=14)
+    plt.semilogy(nuclear_price, grid_size, ls='-', marker='.', c='r', markersize=6)
+    plt.xlabel('$/kWh', fontsize=14)                
+    plt.ylabel('Q (W)', fontsize=14)
     plt.tight_layout()
-    return power_price
+    plt.savefig('Supply Curve')
+    return grid_size, power_price
