@@ -2,7 +2,7 @@ import numpy as np
 import scipy
 import matplotlib.pyplot as plt
 
-def ramp_rate(
+def energy_ramp_rate(
     grid_size = 1e9):
     '''Calculates size of the plants components and related parameters
     Input: 
@@ -82,4 +82,3 @@ def ramp_rate(
     print('')
     print('At complete solar contribution, there is',solar_excess_energy[-1]/1e6,'MW-hr of excess energy or',100*solar_excess_energy[-1]/(grid_size*24),'% of the grid size.')
     return 100*solar_contribution, max_ramp_up_rate/1e6, solar_excess_energy/1e6
-a=ramp_rate()
