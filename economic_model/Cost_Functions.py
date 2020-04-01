@@ -15,6 +15,8 @@ from Economic_Data import generator_cost
 from Economic_Data import replace
 
 def bypass(thermal_storage_size):
+    nuclear_profit = float_check('Profit margin for ThorCon (%): ')
+    solar_profit = float_check('Profit margin for solar (%): ')
     bypass = yes_no('Would you like to use default ThorCon values (YES/NO)?: ')
     if bypass.upper() == 'NO':
         nuc_info = nuc_salt_cost(bypass, 0, 0, 0, 'YES')
@@ -47,13 +49,13 @@ def bypass(thermal_storage_size):
         r_hundred = 1
         n = 1
         t = 1
-    return nuc_info, storage_info, can_info, turbine_info, generator_info, license_info, labor_info, salary_info, length_info, loan_opt, loan_amount, r_hundred, n, t
+    return nuc_info, storage_info, can_info, turbine_info, generator_info, license_info, labor_info, salary_info, length_info, loan_opt, loan_amount, r_hundred, n, t, nuclear_profit, solar_profit
             
 def nuc_costs(
         grid_size = 1000e6,
         thermal_storage_size = 1000e6,
         efficency = 1,
-        parameters = np.zeros(13)):
+        parameters = np.zeros(16)):
     
     # Testing bypass
     bypass_parameters = parameters
@@ -61,6 +63,7 @@ def nuc_costs(
     # Scaling factor
     SF = grid_size/1000e6
     reactor_power = grid_size/efficency
+    profit_margin = bypass_parameters[14]/100
     
     # Chooses which type of fuel salt to use.
     nuc_salt = bypass_parameters[0]
@@ -239,7 +242,7 @@ def nuc_costs(
     
     # Graphing
     # TODO: add monthly revenue plot, make plots look better, find break even point
-    nuc_cost = np.sum(life_cost)
+    nuc_cost = np.sum(life_cost) * (1 + profit_margin)
     return nuc_cost
 
 def solar_fraction(
@@ -304,7 +307,7 @@ def solar_costs(
     land_price = 500,
     storage_eff = 0.4,
     heat_eff = 0.4,
-    parameters = np.zeros(13)):
+    parameters = np.zeros(16)):
     
 # constants
     solar_hour_start =  7.50 # Sun shines from 
@@ -345,6 +348,8 @@ def solar_costs(
     bypass_parameters = parameters
     work_length = bypass_parameters[8]
     solar_costs = ((production_price * np.max(solar_gen)) + ((land_price * 12 * work_length * np.max(solar_gen)) / (357e6 / (365.25 * 24)))) / energy
+    profit_margin = bypass_parameters[15]/100
+    solar_costs = solar_costs * (1 + profit_margin)
     if solar_fract == 0:
         solar_costs = 0
     return solar_costs, load_avg, thermal_storage_size
