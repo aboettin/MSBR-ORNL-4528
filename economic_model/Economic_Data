@@ -325,16 +325,16 @@ def storage_salt_cost(thermal_storage_size, bypass, index_repeat, vol_repeat, th
     return cost, index, vol, thermal_check
 
 # Chooses what turbine model to use.
-def turbine_cost(bypass, index_repeat, table_opt):
+def turbine_cost(bypass, turbine_size, index_repeat, table_opt):
     # TODO: more turbine options, better pricing data
     table = [['Index   ' '  Company   '      '      Model',    '     Price [$/m^3]'],
                       ['____________________________________________________'],
-                      ['    1'   '     Siemens'     '       SST-800        ',        1.55e7],
-                      ['    2'   '     Siemens'   '       SST-900        ',       1.85e7],
-                      ['    3'     '      Doosan'      '         MTD50         ',         1.02e6],
-                      ['    4'         '          GE'     '   9F 3-series        ',      1.5e7],
-                      ['    5'         '          GE'     '   9F 5-series        ',      1.75e7],
-                      ['    6'      '        DTEC'      '      GMB2550r         ',      8.5e6]]    
+                      ['    1'   '     Company A'   '       Model A        ', 0.1],
+                      ['    2'   '     Company B'   '       Model B        ', 0.1],
+                      ['    3'   '     Company C'   '       Model B        ', 0.1],
+                      ['    4'   '     Company D'   '       Model B        ', 0.1],
+                      ['    5'   '     Company E'   '       Model B        ', 0.1],
+                      ['    6'   '     Company F'   '       Model B        ', 0.1]]    
     if table_opt.upper() == 'YES':
         print('TURBINE TABLE')
         print('')
@@ -348,20 +348,20 @@ def turbine_cost(bypass, index_repeat, table_opt):
         index = index_repeat   
     else:
         index = 1
-    cost = table[1+index][1]
+    cost = table[1+index][1] * turbine_size
     if table_opt.upper() == 'YES':
         print('Turbine price is: $', cost)
         print('')
     return cost, index
 
 # Chooses what generator model to use.
-def generator_cost(bypass, index_repeat, table_opt):
+def generator_cost(bypass, generator_size, index_repeat, table_opt):
     # TODO: add more generator options, better pricing data
     table = [['Index   ' '  Company   '      '      Model'      '        Cooling      ',    '     Price [$/m^3]'],
                         ['__________________________________________________________________________',],
-                        ['    1'     '     Siemens'     '    SGen-1000A     '      '       Air              ', 1.55e7],
-                        ['    2'      '      Doosan'      '        DGEN-H      '      ' Hydrogen               ', 1.02e6],
-                        ['    3'        '          GE'     '        TOPAIR   '      '         Air              ', 1.5e7]]
+                        ['    1'     '    Company A '     '    Model A   '      ' Air              ', 0.1],
+                        ['    2'     '    Company B '     '    Model B   '      ' Air              ', 0.1],
+                        ['    3'     '    Company C '     '    Model C   '      ' Air              ', 0.1]]
     if table_opt.upper() == 'YES':
         print ('GENERATOR TABLE')
         print ('')
@@ -375,7 +375,7 @@ def generator_cost(bypass, index_repeat, table_opt):
         index = index_repeat
     else:
         index = 1
-    cost = table[1+index][1]
+    cost = table[1+index][1] * generator_size
     if table_opt.upper() == 'YES':
         print('Generator price is: $', cost)
     return cost, index
