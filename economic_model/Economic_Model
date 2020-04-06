@@ -9,7 +9,7 @@ def plant_costs(
         reactor_power = 1000e6, 
         thermal_storage_size = 1000e6, 
         turbine_size = 500e6, 
-        generator_size = 500e6, 
+        generator_size = 500e4, 
         max_ramp_up_rate = 30e6,
         solar_excess = 0):
     
@@ -63,12 +63,12 @@ def plant_costs(
     can_cost = SF * can_cost[0]
     
     # Chooses what turbine model to use.
-    turbine_price = turbine_cost(bypass, 0, 'YES')
-    turbine_price = SF * turbine_price[0]
+    turbine_price = turbine_cost(bypass, turbine_size, 0, 'YES')
+    turbine_price = turbine_price[0]
     
     # Chooses what generator model to use.
-    generator_price = generator_cost(bypass, 0, 'YES')
-    generator_price = SF * generator_price[0]
+    generator_price = generator_cost(bypass, generator_size, 0, 'YES')
+    generator_price = generator_price[0]
         
     # Determine licensing cost
     if bypass.upper() == 'NO':
@@ -108,9 +108,6 @@ def plant_costs(
     else:
         yearly_rev = float_check('Expected yearly revenue: $')
     print('Yearly revenue is: $', yearly_rev)
-    
-    # Buying excess solar power
-    solar_cost_offset = solar_excess * ((pwr_cost * 24 * 365 / 100) / 1000)
     
     # Determine plant life in years.
     if bypass.upper() == 'NO':
@@ -202,7 +199,7 @@ def plant_costs(
                 
             # Calculates costs throughout plant life.
             replacements = fuel_replacement + prim_salt_replacement + sec_salt_replacement + tert_salt_replacement + can_replacement
-            debt = replacements + labor_cost + loan_ycost - solar_cost_offset # Plant costs [$]
+            debt = replacements + labor_cost + loan_ycost # Plant costs [$]
             life_cost.append(debt)
         life_cost[-1] = (initial_cost + loan_amount) * 0.1 + loan_remainder  #10% to decommision cost
         life_cost = np.array(life_cost) / (reactor_power * 24 * 365.25 / 1000)
@@ -252,7 +249,7 @@ def plant_costs(
                 
             # Calculates costs throughout plant life.
             replacements = fuel_replacement + prim_salt_replacement + sec_salt_replacement + tert_salt_replacement + can_replacement
-            debt = replacements + labor_cost - solar_cost_offset # Plant costs [$]
+            debt = replacements + labor_cost # Plant costs [$]
             life_cost.append(debt)
         life_cost[-1] = initial_cost * 0.1  #10% to decommision cost
         life_cost = np.array(life_cost) / (reactor_power * 24 * 365.25 / 1000)
