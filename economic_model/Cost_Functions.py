@@ -22,8 +22,8 @@ def bypass(thermal_storage_size):
         nuc_info = nuc_salt_cost(bypass, 0, 0, 0, 'YES')
         storage_info = storage_salt_cost(thermal_storage_size, bypass, 0, 0, 'MAYBE', 'YES')
         can_info = can_cost(bypass, 0, 'YES')
-        turbine_info = turbine_cost(bypass, 0, 'YES')
-        generator_info = generator_cost(bypass, 0, 'YES')
+        turbine_info = turbine_cost(bypass, 1, 0, 'YES')
+        generator_info = generator_cost(bypass, 1, 0, 'YES')
         license_info = float_check('Licensing cost: $')
         labor_info = int_check('Number of people working at plant(s): ')
         salary_info = float_check('Average annual salary of workforce: $')
@@ -32,8 +32,8 @@ def bypass(thermal_storage_size):
         nuc_info = nuc_salt_cost(bypass, 0, 0, 0, 'NO')
         storage_info = storage_salt_cost(thermal_storage_size, bypass, 0, 0, 'MAYBE', 'YES')
         can_info = can_cost(bypass, 0, 'NO')
-        turbine_info = turbine_cost(bypass, 0, 'NO')
-        generator_info = generator_cost(bypass, 0, 'NO')
+        turbine_info = turbine_cost(bypass, 1, 0, 'NO')
+        generator_info = generator_cost(bypass, 1, 0, 'NO')
         license_info = 100e6
         labor_info = 209
         salary_info = 150e3
@@ -55,6 +55,8 @@ def nuc_costs(
         grid_size = 1000e6,
         thermal_storage_size = 1000e6,
         efficency = 1,
+        turbine_size = 500e5,
+        generator_size = 20e3,
         parameters = np.zeros(16)):
     
     # Testing bypass
@@ -75,8 +77,8 @@ def nuc_costs(
     storage_index = storage[1]
     storage_amount = storage[2]
     storage_check = storage[3]
-    storage_costs = storage_salt_cost(thermal_storage_size, 'NO', storage_index, storage_amount, storage_check, 'NO')
-    storage_costs = SF * storage_costs[0]
+    storage_info = storage_salt_cost(thermal_storage_size, 'NO', storage_index, storage_amount, storage_check, 'NO')
+    storage_costs = SF * storage_info[0]
     
     # Overnight costs
     overnight = SF * overnight_cost('NO')
@@ -85,17 +87,21 @@ def nuc_costs(
     fuel_costs = SF * fuel_cost('NO')
     
     # Can costs
-    can_price = bypass_parameters[2]
-    can_price = SF * can_price[0]
+    can_info = bypass_parameters[2]
+    can_price = SF * can_info[0]
     
     # Chooses what turbine model to use.
-    turbine_price = bypass_parameters[3]
-    turbine_price = SF * turbine_price[0]
+    turbine = bypass_parameters[3]
+    turbine_index = turbine[1]
+    turbine_info = turbine_cost('NO', turbine_size, turbine_index, 'NO')
+    turbine_price = turbine_info[0]
     
     # Chooses what generator model to use.
-    generator_price = bypass_parameters[4]
-    generator_price = SF * generator_price[0]
-        
+    generator = bypass_parameters[4]
+    generator_index = generator[1]
+    generator_info = generator_cost('NO', generator_size, generator_index, 'NO')
+    generator_price = generator_info[0]
+    
     # Determine licensing cost
     license = SF * bypass_parameters[5]
 
@@ -340,10 +346,13 @@ def solar_costs(
     energy = 0
     for index in range(0,23):
         energy += (1800 * (solar_gen[index] + solar_gen[index+1]))/1000
-    load_avg = scipy.average(plant_load)    
+    load_avg = scipy.average(plant_load)
+    load_max = scipy.amax(plant_load)    
     load_var = 0
     for hourlyload in np.nditer(plant_load): 
         load_var += abs(hourlyload-load_avg)
+    turbine_size = load_max / heat_eff
+    generator_size = 0.01 * load_max
     thermal_storage_size = load_var / (2.0*storage_eff*heat_eff)
     bypass_parameters = parameters
     work_length = bypass_parameters[8]
@@ -352,4 +361,4 @@ def solar_costs(
     solar_costs = solar_costs * (1 + profit_margin)
     if solar_fract == 0:
         solar_costs = 0
-    return solar_costs, load_avg, thermal_storage_size
+    return solar_costs, load_avg, thermal_storage_size, turbine_size, generator_size
