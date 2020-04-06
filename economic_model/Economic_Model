@@ -123,10 +123,7 @@ def plant_costs(
     print('Initial facility cost: $', initial_cost)
     
     # Determines if a loan is used.
-    if bypass.upper() == 'NO':
-        loan_opt = yes_no('Will a loan be used (YES/NO)?: ')
-    else:
-        loan_opt = 'NO'
+    loan_opt = yes_no('Will a loan be used (YES/NO)?: ')
     
     # If a loan is taken.
     if loan_opt.upper() == 'YES':
@@ -152,7 +149,7 @@ def plant_costs(
         loan_interest = loan_tot - loan_amount
         initial_cost = initial_cost - loan_amount
         print('Initial facility cost with loan: $', initial_cost)
-        print('Interest on loan: $', loan_interest)
+        print('Interest on loayen: $', loan_interest)
         
         # Calculate plant revenue throughout lifetime.
         # TODO: refine periodic costs (can replacement, salt replacement, etc.)
@@ -208,7 +205,7 @@ def plant_costs(
             debt = replacements + labor_cost + loan_ycost - solar_cost_offset # Plant costs [$]
             life_cost.append(debt)
         life_cost[-1] = (initial_cost + loan_amount) * 0.1 + loan_remainder  #10% to decommision cost
-        life_cost = np.array(life_cost) / (reactor_power / 1000)
+        life_cost = np.array(life_cost) / (reactor_power * 24 * 365.25 / 1000)
 
     # If loan is not taken.
     # TODO: refine periodic costs (core replacement, salt replacement, etc.)
@@ -258,15 +255,14 @@ def plant_costs(
             debt = replacements + labor_cost - solar_cost_offset # Plant costs [$]
             life_cost.append(debt)
         life_cost[-1] = initial_cost * 0.1  #10% to decommision cost
-        life_cost = np.array(life_cost) / (reactor_power / 1000)
+        life_cost = np.array(life_cost) / (reactor_power * 24 * 365.25 / 1000)
     
     # Graphing
     # TODO: add monthly revenue plot, make plots look better, find break even point
     year = np.linspace(0, int(work_length),len(life_cost))
-    plt.semilogy(year,life_cost,ls='-', marker='.', c='r', markersize=6, label='Costs')
+    plt.semilogy(year,life_cost,ls='-', marker='.', c='r', markersize=6)
     plt.xlabel('Time (years)', fontsize=14)                
-    plt.ylabel('Costs ($/kWe)', fontsize=14)
-    plt.legend()
+    plt.ylabel('Costs ($/kWh)', fontsize=14)
     plt.tight_layout()
     print('Total lifetime costs: $', sum(life_cost))
     plt.savefig('Lifetime Costs')
