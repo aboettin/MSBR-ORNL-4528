@@ -30,13 +30,15 @@ def power_costs(
         solar_price[i] = solar_info[0]
         nuclear_load = solar_info[1]
         thermal_storage_size = solar_info[2]
+        turbine_size = solar_info[3]
+        generator_size = solar_info[4]
         # Determine Nuclear and Thermal Storage Costs
-        nuclear_price[i] = nuc_costs(nuclear_load, thermal_storage_size, heat_eff, parameters)
+        nuclear_price[i] = nuc_costs(nuclear_load, thermal_storage_size, heat_eff, turbine_size, generator_size, parameters)
         # Total Power Costs (per kWh)
         power_price[i] = (solar_price[i] * solar_grid_fraction) + (nuclear_price[i] * (1 - solar_grid_fraction))
-    plt.semilogy(nuclear_price, grid_size, ls='-', marker='.', c='r', markersize=6)
-    plt.xlabel('$/kWh', fontsize=14)                
-    plt.ylabel('Q (W)', fontsize=14)
-    plt.tight_layout()
-    plt.savefig('Supply Curve')
+    #plt.semilogy(nuclear_price, grid_size, ls='-', marker='.', c='r', markersize=6)
+    #plt.xlabel('$/kWh', fontsize=14)                
+    #plt.ylabel('Q (W)', fontsize=14)
+    #plt.tight_layout()
+    #plt.savefig('Supply Curve')
     return grid_size, power_price
