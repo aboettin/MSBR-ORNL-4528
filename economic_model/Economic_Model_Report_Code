@@ -1,0 +1,229 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{array}
+\usepackage{comment}
+\usepackage[table]{xcolor}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{float}
+
+\title{NE 472: Commercial Viability of a ThorCon-like Simple Flexible Molten Salt Reactor (SF-MSR)}
+\author{Alexander Boettinger (aboettin@vols.utk.edu)\\Mentor: Dr. Ondrej Chvala}
+\date{March 2020}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+This project is meant to give a rough estimate of the commercial viability a SF-MSR. This is first done by creating a lifetime cost model of the SF-MSR. With cost estimates generated from this model, the effects from changing proportions of solar energy on the grid on the power supply/demand curves can be approximated. With changing proportions of solar energy, the effect on power ramp-up rates and need for thermal storage changes. This project also gives an estimate of those effects.
+
+\section{Background}
+
+Due to the lack of any current commercial SF-MSR technologies, the model for this project is based on ThorCon’s Executive Summary [1]. The idea of ThorCon is to be a replacement for coal plants around the world. This is done by having the reactor and primary heat exchangers contained in a can that has built in passive safety measures (eg: ability to be cooled by natural convection, automatic fuel draining in the event of excess overheating, and low operating temperature/pressure), having the can be easily and regularly replaced, and being able to run a super-critical steam cycle.
+
+\vspace{0.5cm}
+
+The costs associated with ThorCon can be divided into two categories: capital costs and recurrent costs. The capital costs represent the investment needed to build reactor, facility, and the costs of other necessary equipment. The estimates for these costs are shown in Table 1. Regarding recurrent costs, the most notable are that of fuel replacement, salt replacement, can replacement, and labor. Estimated costs for the can replacements can be found in Table 2 and all other costs can be found in Table 3.
+
+% Table 1
+\begin{center}
+\begin{tabular}{ |c|c|c| }
+ \hline
+ \multicolumn{3}{|c|}{Table 1: ThorCon Estimated Capital Costs [1]}\\
+ \hline
+ Item & Number of Units & Cost (thousand USD)\\
+ \hline
+ Pond & 1 & 1605\\
+ Pond Condensers & 8 & 206\\
+ Silo Hall & 1 & 21217\\
+ PMOD Grid & 4 & 3518\\
+ Basement & 4 & 760\\
+ Can Silo Radtank & 8 & 1019\\
+ Can Silo and Membrane Wall & 8 & 711\\
+ Fuel Salt Drain Tank, Heat Sink & 8 & 2153\\
+ Off-gas Holdup Tanks and Silos & 8 & 2153\\
+ PLP Motor/Impeller & 5 & 597\\
+ Secondary Loop Pump & 5 & 595\\
+ Steam Generating Cell & 4 & 1778\\
+ Secondary Heat Exchangers & 4 & 228\\
+ Tertiary Heat Exchangers & 4 & 267\\
+ Tertiary Loop Pump & 5 & 443\\
+ Coolant Salt Drain Tank & 1 & 3000\\
+ Off-gas Clean-up System & 1 & 5000\\
+ Gantry Crane & 1 & 15000\\
+ Control Room (Reactor) & 1 & 24000\\
+ Steam Plant Buildings & 2 & 23140\\
+ Feedwater System & 2 & 37866\\
+ Steam Piping & 2 & 24432\\
+ Condenser & 2 & 8609\\
+ Cooling (misc) & 2 & 18612\\
+ Electrical & 2 & 38555\\
+ Control Room (Steam and Electrical) & 2 & 16548\\
+ Land & TBD & TBD\\
+ \hline
+\end{tabular}
+\vspace{0.5cm}
+\end{center}
+% Table 2
+\begin{center}
+\begin{tabular}{ |c|c|c| }
+ \hline
+ \multicolumn{3}{|c|}{Table 2: ThorCon Estimated Can Costs [1]}\\
+ \hline
+ Item & Number of Units & Cost per Unit (USD)\\
+ \hline
+ Titanium-Zirconium-Molybdenum & 529 [kg] & 50\\
+ Synthetic Graphite & 162452 [kg] & 20\\
+ SUS304 & 94688 [kg] & 4\\
+ Graphite Rings & 7099 [kg] & 9\\
+ SUS316 & 116999 [kg] & 6\\
+ PLP Pump & 2213 [kW] & 75\\
+ Heating Tape & 170 [$m^2$] & 1600\\
+ Aerogel Insulation & 170 [$m^2$] & 63\\
+ \hline
+\end{tabular}
+\vspace{0.5cm}
+\end{center}
+% Table 3
+\begin{center}
+\begin{tabular}{ |c|c|c| }
+ \hline
+ \multicolumn{3}{|c|}{Table 3: ThorCon Estimated Misc Recurrent Costs [1]}\\
+ \hline
+ Item & Number of Units & Cost per Unit (USD)\\
+ \hline
+ Uranium & SEE TABLE 4 & 44.38\\
+ U-235 & SEE TABLE 4 & 40159.17\\
+ Thorium & SEE TABLE 4 & 50\\
+ $NaF-BeF_2$ & 113468 [kg] & 35\\
+ $NaNO_3-NaNO_2-KNO_3$ & TBD [kg] & 0.50\\
+ Labor & 209 [people] & TBD [per year]\\
+ \hline
+\end{tabular}
+\vspace{0.5cm}
+\end{center}
+
+In the current power market, contributions from solar energy are becoming more significant. Due to the cyclical nature of solar energy production, the supply for power production is not constant. Because demand throughout the day is not constant either (see Figure 1), increases in solar contributions lead to increases in ramp rates, thermal storage, and, in extreme circumstances, excess power production. 
+
+% Figure 1
+\begin{figure}[H]
+ \centering
+ \begin{subfigure}[b]{0.4\linewidth}
+  \includegraphics[width=\linewidth]{no_solar_demand.png}
+   \caption{No solar contribution.}
+ \end{subfigure}
+ \begin{subfigure}[b]{0.4\linewidth}
+  \includegraphics[width=\linewidth]{30_solar_demand.png}
+   \caption{Demand with 30\% solar offset.}
+ \end{subfigure}
+ \caption[width=\linewidth]{Example Daily Power Demand Curve}
+\vspace{0.5cm}
+\end{figure}
+
+\section{Methodology}
+
+All aspects of this project are calculated through the use of Python. The lifetime cost profile is calculated from two different codes, Economic Data [2] and Economic Model [3]. The Economic Data section includes a variety of functions representing various costs associated with necessary reactor items. These include a function for adding capital costs found in Table 1, choosing the type and amount of fuel salt and secondary loop salt, choosing the type and amount of tertiary (thermal storage) salt, generator choice, turbine choice, can costs, and fuel costs. All functions that involve a choice present the user with a table of options (that can be easily added to) and request an index corresponding to a location in the table. With the user inputted choices into the Economic Data functions, prices are linearly scaled in the Economic Model by the user inputted grid size, thermal storage size, generator size, and turbine size. The user can then determine the labor force, average salary, price to sell power at, plant operating life length, and financing options. Regarding financing options, the user can choose to take out a loan. If this option is chosen, the user inputs the size of the desired loan, interest rate, number of yearly payments, and length of loan. Once financing options are chosen, a graph of the year-by-year lifetime cost profile is generated. All capital costs are at Year 0 and the periodic nature of some costs are calculated through the use of a "replace" function [2]. This is necessary because different items need to be replaced at different rates. The cans need to be replaced every 4 years, the primary salt every 8 years, the secondary and tertiary salts every 32 years, and the fuel needs to be replaced according to Table 4 [1].
+
+% Table 4
+\begin{center}
+\begin{tabular}{ |c|c|c|c| }
+ \hline
+ \multicolumn{4}{|c|}{Table 4: ThorCon Fuel Replacement Schedule [1]}\\
+ \hline
+ Year & Initial U-235 [kg] & U-235 Additions [kg] & Thorium Additions [kg]\\
+ \hline
+ 0 & 636 & 194 & 11954\\
+ 1 & 0 & 194 & 0\\
+ 2 & 0 & 194 & 0\\
+ 3 & 0 & 194 & 0\\
+ 4 & 0 & 194 & 0\\
+ 5 & 0 & 194 & 0\\
+ 6 & 0 & 194 & 0\\
+ 7 & 0 & 194 & 0\\
+ \hline
+\end{tabular}
+\vspace{0.5cm}
+\end{center}
+
+The effects on increasing grid contributions of solar are modelled through the function found in Excess Energy and Ramp Rate [4]. This function is used to give a prediction of the maximum ramp rates and thermal storage needs and is based on an earlier plant sizing function developed by Dr. Chvala [5]. First, the user inputs the size of the grid. Using this information, a daily demand curve is generated based on a hard coded array representing power demands at different hours. The power produced from the sun is modelled as a sine function with zeros at times representing sunrise and sunset. This power is subtracted from the demand curve. Ramp rates between hours is calculated through forward differentiation and thermal storage needs occur when the solar power at some time is greater than the demand curve at that time. This process is automatically repeated for different levels of solar contribution to produce Ramp Rate/Excess Energy vs Solar Contribution curves.
+
+\vspace{0.5cm}
+
+The daily demand curve is derived from Dr. Chvala's plant sizing function. Examples of this curve are found in Figure 1. These curves are made in the same way as in the Excess Energy and Ramp Rate Function. To generate the supply curve, the user first inputs the desired solar contribution to generate a normalized version one of these demand curves into the Supply Curve function [6]. The user is then asked to put in ThorCon parameters much like in the Economic Model code. The user must also enter parameters such as desired profit margins for the nuclear and solar parts and the costs associated with solar energy production. These solar costs are represented as production costs for the panels and rent for the land that the solar panels are located. Using this information, the Cost Functions [7] code can use the varying grid sizes to automatically calculate thermal storage needs and total nuclear and solar power prices.
+
+\vspace{0.5cm}
+
+\section{Results and Discussion}
+
+A sample lifetime cost profile for a 1000 MWe plant is shown in Figure 2. This plant uses parameters taken from the ThorCon Executive Summary [1] (with capital costs being multiplied by a factor of 2.5 to be conservative) and has the plant operating for 60 years. Figure 2a shows the cost profile without financing and Figure 2b shows the same profile but if a 20 year \$500 million loan at 2\% interest is used. The spike in costs at Year 0 is due to the capital costs of the facility. Throughout the lifetime of the plant there are spikes in costs at intervals of 4, 8, and 32 years. This is due to the need for replacing the cans and salts. The final spike is due to decommissioning costs. Both models show that the vast majority of costs are the initial costs of building the facility. Financing the facility with a loan can significantly ease the initial cost burden while not significantly reducing the total cost profile as shown in Figure 2b.
+
+% Figure 2
+\begin{figure}[H]
+ \centering
+ \begin{subfigure}[b]{0.4\linewidth}
+  \includegraphics[width=\linewidth]{loan_no.png}
+   \caption{No loan.}
+ \end{subfigure}
+ \begin{subfigure}[b]{0.4\linewidth}
+  \includegraphics[width=\linewidth]{loan_yes.png}
+   \caption{20 Year \$500 Million Loan at 2\%.}
+ \end{subfigure}
+ \caption[width=\linewidth]{Example Lifetime Cost Profile}
+\vspace{0.5cm}
+\end{figure}
+
+The ramp rate and excess power production as functions of solar contribution for a 1000 MWe grid are shown in Figure 3. From Figure 3a, it is apparent that small levels of solar contribution can decrease maximum ramp rates. However, at levels above 10.3\% total contribution, the ramp rates drastically increase. This will lead to increase wear and decreased lifespan of machinery such as turbines and generators. In regards to excess energy production, there is none up until the solar is 36.2\% of the peak power demand. Any increases in solar contributions will lead to drastic increases in excess energy production. This will lead to increased demand for thermal storage and will cause negative power demands leading to negative power pricing.
+
+% Figure 3
+\begin{figure}[H]
+ \centering
+ \begin{subfigure}[b]{0.4\linewidth}
+  \includegraphics[width=\linewidth]{ramp_rate.png}
+   \caption{Ramp Rate.}
+ \end{subfigure}
+ \begin{subfigure}[b]{0.4\linewidth}
+  \includegraphics[width=\linewidth]{excess_energy.png}
+   \caption{Excess Energy Production.}
+ \end{subfigure}
+ \caption[width=\linewidth]{Effects of Increasing Solar Cotribution}
+\vspace{0.5cm}
+\end{figure}
+
+Figure 4 shows some sample supply curves for power production with total solar contributions of 0\%, 10\%, and 20\%. All curves presume a 10\% profit margin for both nuclear and solar power production, default ThorCon parameters (with capital costs being multiplied by 2.5), no loan, a solar production cost of \$0.20 per kW solar panel production cost, and a land cost of \$500 per acre. At low grid demands, the costs of power production are very similiar. At higher demands, power production becomes cheaper, especially at smaller solar contributions. Therefore, it is best to have a small total solar contribution.
+
+% Figure 4
+\begin{figure}[H]
+ \centering
+ \includegraphics[width=\linewidth]{supply_curve.png}
+  \caption{Supply vs. Cost Curves}
+\vspace{0.5cm}
+\end{figure}
+
+\section{Conclusion and Follow-Ups}
+
+If the costs for the ThorCon plant described in the Executive Summary [1] are a reasonable estimate (within 150\% of the proposed numbers), then this SF-MSR is commercially viable compared to solar energy. The effects of increasing solar contributions on ramp rates and excess energy have been shown to be undesirable at contribution levels. Finally, as the model stands, it seems that economies of scale very positively affect the pricing on SF-MSR power generation.
+
+\vspace{0.5cm}
+
+There are some features that can be added to the model to increase its accuracy. Turbine and generator costs should be researched and used to replace current placeholder values. Periodic machinery replacement and maintenance costs may also be included. Effects of inflation on the periodic costs may be included. Finally, a more robust calculation of costs associated with solar power production should be researched and added to the model.
+
+\section{References}
+1: Devanney et al. ThorCon the Do-able Molten Salt Reactor Executive Summary, \url{http://thorconpower.com/docs/exec_summary2.pdf}.\\
+2: Boettinger. Economic Data,
+\url{https://github.com/aboettin/MSBR-ORNL-4528/blob/master/economic_model/Economic_Data}\\
+3: Boettinger. Economic Model,
+\url{https://github.com/aboettin/MSBR-ORNL-4528/blob/master/economic_model/Economic_Model}\\
+4: Boettinger. Excess Energy and Ramp Rate,
+\url{https://github.com/aboettin/MSBR-ORNL-4528/blob/master/economic_model/Excess_Energy_and_Ramp_Rate}\\
+5: Chvala. Plant Sizing,
+\url{https://github.com/aboettin/MSBR-ORNL-4528/blob/master/economic_model/web-cgi/plant_sizing.py}\\
+5: Boettinger. Supply Curve,
+\url{https://github.com/aboettin/MSBR-ORNL-4528/blob/master/economic_model/Supply_Curve.py}\\
+6: Boettinger. Cost Functions,
+\url{https://github.com/aboettin/MSBR-ORNL-4528/blob/master/economic_model/Cost_Functions.py}
+
+\end{document}
