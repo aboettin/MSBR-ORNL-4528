@@ -214,16 +214,16 @@ There are some features that can be added to the model to increase its accuracy.
 \section{References}
 1: Devanney et al. ThorCon the Do-able Molten Salt Reactor Executive Summary, \url{http://thorconpower.com/docs/exec_summary2.pdf}.\\
 2: Boettinger. Economic Data,
-\url{https://github.com/aboettin/MSBR-ORNL-4528/blob/master/economic_model/Economic_Data}\\
+\url{https://github.com/aboettin/MSBR-ORNL-4528/blob/master/economic_model/2019-2020\%20SF-MSR\%20Codes/Economic_Data.py}\\
 3: Boettinger. Economic Model,
-\url{https://github.com/aboettin/MSBR-ORNL-4528/blob/master/economic_model/Economic_Model}\\
+\url{https://github.com/aboettin/MSBR-ORNL-4528/blob/master/economic_model/2019-\%20SF-MSR\%20Codes/Economic_Model.py}\\
 4: Boettinger. Excess Energy and Ramp Rate,
-\url{https://github.com/aboettin/MSBR-ORNL-4528/blob/master/economic_model/Excess_Energy_and_Ramp_Rate}\\
+\url{https://github.com/aboettin/MSBR-ORNL-4528/blob/master/economic_model/2019-2020\%20SF-MSR\%20Codes/Excess_Energy_and_Ramp_Rate.py}\\
 5: Chvala. Plant Sizing,
 \url{https://github.com/aboettin/MSBR-ORNL-4528/blob/master/economic_model/web-cgi/plant_sizing.py}\\
 5: Boettinger. Supply Curve,
-\url{https://github.com/aboettin/MSBR-ORNL-4528/blob/master/economic_model/Supply_Curve.py}\\
+\url{https://github.com/aboettin/MSBR-ORNL-4528/blob/master/economic_model/2019-2020\%20SF-MSR\%20Codes/Supply_Curve.py}\\
 6: Boettinger. Cost Functions,
-\url{https://github.com/aboettin/MSBR-ORNL-4528/blob/master/economic_model/Cost_Functions.py}
+\url{https://github.com/aboettin/MSBR-ORNL-4528/blob/master/economic_model/2019-2020\%20SF-MSR\%20Codes/Cost_Functions.py}
 
 \end{document}
